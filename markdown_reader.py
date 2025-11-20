@@ -16,6 +16,8 @@ import secrets
 from datetime import datetime, timedelta
 import mimetypes
 import re
+import argparse
+import sys
 from template.main_template import MAIN_TEMPLATE
 from template.login_template import LOGIN_TEMPLATE
 
@@ -517,6 +519,25 @@ def create_ssl_context():
         raise
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='安全Markdown阅读器')
+    parser.add_argument('--target_folder', nargs='?', default=os.getcwd(),
+                       help='目标文件夹路径 (默认: 当前目录)')
+
+    args = parser.parse_args()
+
+    # 验证目标文件夹存在
+    target_folder = os.path.abspath(args.target_folder)
+    if not os.path.exists(target_folder):
+        print(f"错误: 目标文件夹不存在: {target_folder}")
+        sys.exit(1)
+
+    if not os.path.isdir(target_folder):
+        print(f"错误: 指定路径不是文件夹: {target_folder}")
+        sys.exit(1)
+
+    # 切换到目标文件夹
+    os.chdir(target_folder)
+
     required_packages = ['markdown', 'cryptography']
     missing_packages = []
 
@@ -539,6 +560,8 @@ if __name__ == '__main__':
     print("  • 路径遍历攻击防护")
     print("  • 会话管理和超时控制")
     print("  • 文件大小限制和请求超时保护")
+    print("")
+    print(f"📂 目标目录: {target_folder}")
     print("")
     print("🌐 访问地址:")
     print(f"  • HTTPS: https://localhost:{PORT_NUMBER}")

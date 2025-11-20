@@ -25,7 +25,8 @@ services:
     # './' 是 docker-compose 中表示当前目录的推荐方式
     volumes:
       - "./:/app"
+      - "../:/data"
 
     # 覆盖 Dockerfile 中的默认 CMD 指令
     # 对应 run.sh 末尾的 python markdown_reader.py
-    command: python markdown_reader.py
+    command: python markdown_reader.py --target_folder /data/markdown
