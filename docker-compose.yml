@@ -1,0 +1,31 @@
+# Docker Compose 文件版本，建议使用较新版本
+# 对于现代的 Docker Desktop 或 Linux 上的 Docker Engine，版本号不是必需的
+version: '3.8'
+
+# 定义服务
+services:
+  # 服务名称，可以自定义，这里我们叫它 "app"
+  app:
+    # 构建指令：告诉 Compose 如何构建镜像
+    build:
+      # context: 指定 Dockerfile 所在的目录，'.' 代表当前目录
+      context: .
+      # dockerfile: 指定 Dockerfile 的路径
+      dockerfile: Dockerfile
+    # 镜像名称和标签：为构建出的镜像指定一个名字
+    image: markdown_reader:latest
+
+    # 端口映射：将主机的 6100 端口映射到容器的 5000 端口
+    # 对应 run.sh 中的 -p 6100:5000
+    ports:
+      - "6100:5000"
+
+    # 卷挂载：将当前目录挂载到容器的 /app 目录
+    # 对应 run.sh 中的 -v $(pwd):/app
+    # './' 是 docker-compose 中表示当前目录的推荐方式
+    volumes:
+      - "../:/app"
+
+    # 覆盖 Dockerfile 中的默认 CMD 指令
+    # 对应 run.sh 末尾的 python markdown_reader.py
+    command: python markdown_reader/markdown_reader.py
