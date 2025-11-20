@@ -113,6 +113,11 @@ MAIN_TEMPLATE = f'''
 
 <body>
     <div class="app-container">
+        <!-- 固定的隐藏/显示标题栏按钮 -->
+        <button class="toggle-header" onclick="toggleHeader()" id="toggleHeaderBtn">
+            隐藏标题栏
+        </button>
+
         <!-- 左侧文件浏览器 -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -133,9 +138,6 @@ MAIN_TEMPLATE = f'''
                 <div class="header-left">
                     <button class="toggle-sidebar" onclick="toggleSidebar()">
                         <span id="toggleIcon">◀</span> 文件
-                    </button>
-                    <button class="toggle-header" onclick="toggleHeader()" id="toggleHeaderBtn">
-                        隐藏标题栏
                     </button>
                     <h1>Markdown 阅读器</h1>
                 </div>

@@ -527,8 +527,7 @@ STYLES = '''
 
         /* 在已有的style标签内添加 */
         .header.hidden {
-            margin-top: -65px;
-            /* 根据header的实际高度调整 */
+            transform: translateY(-100%);
             overflow: hidden;
         }
 
@@ -553,7 +552,7 @@ STYLES = '''
         }
 
         .header {
-            transition: margin-top 0.3s ease;
+            transition: transform 0.3s ease;
         }
 
         /* 响应式设计 */
