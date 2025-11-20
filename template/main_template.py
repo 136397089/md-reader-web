@@ -142,9 +142,6 @@ MAIN_TEMPLATE = f'''
                     <h1>Markdown 阅读器</h1>
                 </div>
                 <div class="header-right">
-                    <span class="security-badge">HTTPS</span>
-                    <span class="math-badge">LaTeX</span>
-                    <span class="image-badge">Images</span>
                     <span class="user-info">已认证</span>
                     <button class="logout-btn" onclick="logout()">退出登录</button>
                 </div>

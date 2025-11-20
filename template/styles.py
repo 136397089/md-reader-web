@@ -10,7 +10,7 @@ STYLES = '''
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.6;
             color: #1f2937;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            background: #f8fafc;
             height: 100vh;
             overflow: hidden;
         }
@@ -22,13 +22,11 @@ STYLES = '''
 
         .sidebar {
             width: 350px;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(148, 163, 184, 0.2);
+            background: white;
+            border-right: 1px solid #e5e7eb;
             display: flex;
             flex-direction: column;
             transition: margin-left 0.3s ease;
-            box-shadow: 4px 0 20px rgba(0,0,0,0.05);
         }
 
         .sidebar.hidden {
@@ -37,8 +35,8 @@ STYLES = '''
 
         .sidebar-header {
             padding: 28px 24px;
-            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
         }
 
         .sidebar-header h2 {
@@ -47,10 +45,6 @@ STYLES = '''
             font-size: 20px;
             font-weight: 700;
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .sidebar-content {
@@ -67,14 +61,12 @@ STYLES = '''
         }
 
         .header {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(20px);
+            background: white;
             padding: 24px 32px;
-            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+            border-bottom: 1px solid #e5e7eb;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
         }
 
         .header-left {
@@ -89,23 +81,20 @@ STYLES = '''
         }
 
         .toggle-sidebar {
-            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+            background: #374151;
             color: white;
             border: none;
             padding: 12px 18px;
-            border-radius: 12px;
+            border-radius: 8px;
             cursor: pointer;
             margin-right: 20px;
             font-size: 14px;
             font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(55, 65, 81, 0.2);
+            transition: background-color 0.2s ease;
         }
 
         .toggle-sidebar:hover {
-            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(55, 65, 81, 0.3);
+            background: #1f2937;
         }
 
         .logout-btn {
@@ -132,38 +121,6 @@ STYLES = '''
             font-weight: 500;
         }
 
-        .security-badge {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 8px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        }
-
-        .math-badge {
-            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-            color: white;
-            padding: 8px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
-        }
-
-        .image-badge {
-            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-            color: white;
-            padding: 8px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-        }
 
         .header h1 {
             margin: 0;
@@ -171,20 +128,14 @@ STYLES = '''
             font-weight: 700;
             color: #111827;
             letter-spacing: -0.7px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .content {
             flex: 1;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
+            background: white;
             padding: 48px;
             overflow-y: auto;
             margin: 0;
-            border-radius: 0 0 0 24px;
         }
 
         .sidebar .file-list {
@@ -203,10 +154,9 @@ STYLES = '''
         }
 
         .file-item:hover {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
-            border-color: rgba(102, 126, 234, 0.2);
-            transform: translateX(4px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+            background: #f3f4f6;
+            color: #374151;
+            transform: none;
         }
 
         .file-item.folder {
@@ -221,12 +171,9 @@ STYLES = '''
         }
 
         .file-item.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #374151;
             color: white;
             font-weight: 600;
-            border-color: #667eea;
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
-            transform: translateX(4px);
         }
 
         .current-path {
@@ -261,10 +208,7 @@ STYLES = '''
 
         .markdown-content h1 {
             font-size: 2.5em;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #111827;
         }
 
         .markdown-content h2 {
@@ -290,8 +234,7 @@ STYLES = '''
         }
 
         .markdown-content h1 {
-            border-bottom: 3px solid transparent;
-            border-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%) 1;
+            border-bottom: 3px solid #e5e7eb;
             padding-bottom: 16px;
         }
 
@@ -330,27 +273,14 @@ STYLES = '''
         }
 
         .markdown-content blockquote {
-            border-left: 5px solid transparent;
-            border-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%) 1;
+            border-left: 4px solid #374151;
             margin: 1.5em 0;
             padding: 20px 24px;
             color: #6b7280;
             font-style: italic;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-            border-radius: 0 12px 12px 0;
-            position: relative;
+            background: #f9fafb;
         }
 
-        .markdown-content blockquote:before {
-            content: '"';
-            position: absolute;
-            top: 10px;
-            left: -5px;
-            font-size: 4em;
-            color: rgba(102, 126, 234, 0.3);
-            font-family: Georgia, serif;
-            line-height: 1;
-        }
 
         .markdown-content table {
             border-collapse: collapse;
@@ -375,19 +305,11 @@ STYLES = '''
         .markdown-content img {
             max-width: 100%;
             height: auto;
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            border-radius: 8px;
             margin: 1.5em 0;
-            cursor: zoom-in;
-            transition: all 0.4s ease;
-            border: 1px solid rgba(148, 163, 184, 0.2);
+            border: 1px solid #e5e7eb;
         }
 
-        .markdown-content img:hover {
-            transform: scale(1.02) translateY(-4px);
-            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.18);
-            border-color: rgba(102, 126, 234, 0.3);
-        }
 
 
         /* MathJax数学公式样式优化 */
@@ -672,78 +594,6 @@ STYLES = '''
             color: #6b7280;
         }
 
-        /* 滚动条样式 */
-        .sidebar-content::-webkit-scrollbar,
-        .content::-webkit-scrollbar {
-            width: 8px;
-        }
 
-        .sidebar-content::-webkit-scrollbar-track,
-        .content::-webkit-scrollbar-track {
-            background: rgba(248, 250, 252, 0.5);
-            border-radius: 4px;
-        }
 
-        .sidebar-content::-webkit-scrollbar-thumb,
-        .content::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 4px;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar-content::-webkit-scrollbar-thumb:hover,
-        .content::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-        }
-
-        /* 页面加载动画 */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .app-container {
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        /* 按钮悬停波纹效果 */
-        @keyframes ripple {
-            0% {
-                transform: scale(0);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(4);
-                opacity: 0;
-            }
-        }
-
-        .toggle-sidebar,
-        .logout-btn {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .toggle-sidebar:active:after,
-        .logout-btn:active:after {
-            content: '';
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.6);
-            transform: scale(0);
-            animation: ripple 0.6s linear;
-            top: 50%;
-            left: 50%;
-            width: 20px;
-            height: 20px;
-            margin-left: -10px;
-            margin-top: -10px;
-        }
 '''

@@ -494,7 +494,8 @@ def create_ssl_context():
             cmd = [
                 'openssl', 'req', '-x509', '-newkey', 'rsa:4096',
                 '-keyout', key_file, '-out', cert_file, '-days', '365',
-                '-nodes', '-subj', '/C=CN/ST=State/L=City/O=Organization/CN=localhost'
+                '-nodes', '-subj', '/C=CN/ST=State/L=City/O=Organization/CN=localhost',
+                '-addext', 'subjectAltName=DNS:localhost,IP:127.0.0.1,IP:192.168.1.2,IP:1.2.3.4'
             ]
             result = subprocess.run(cmd, timeout=30, capture_output=True, text=True)
             if result.returncode != 0:
@@ -561,7 +562,7 @@ if __name__ == '__main__':
         ssl_context = create_ssl_context()
 
         app.run(
-            host='127.0.0.1',
+            host='0.0.0.0',
             port=5000,
             debug=False,
             ssl_context=ssl_context,
