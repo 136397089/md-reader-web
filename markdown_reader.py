@@ -21,7 +21,8 @@ from template.login_template import LOGIN_TEMPLATE
 
 
 
-
+PASSWORD = 'admin123'  # 默认密码，可修改
+PORT_NUMBER = 5000
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
 
@@ -122,7 +123,7 @@ def decrypt_password(encrypted_password_b64):
         print(f"解密失败: {e}")
         return None
 
-def verify_password(encrypted_password_b64, stored_password='grant91'):
+def verify_password(encrypted_password_b64, stored_password=PASSWORD):
     """验证密码"""
     decrypted_password = decrypt_password(encrypted_password_b64)
     return decrypted_password == stored_password
@@ -539,8 +540,8 @@ if __name__ == '__main__':
     print("  • 文件大小限制和请求超时保护")
     print("")
     print("🌐 访问地址:")
-    print("  • HTTPS: https://localhost:5000")
-    print("  • 默认密码: admin123")
+    print(f"  • HTTPS: https://localhost:{PORT_NUMBER}")
+    print(f"  • 默认密码: {PASSWORD}")
     print("")
     print("📐 数学公式语法:")
     print("  • 行内公式: $E = mc^2$")
@@ -560,7 +561,7 @@ if __name__ == '__main__':
         ssl_context = create_ssl_context()
 
         app.run(
-            host='0.0.0.0',
+            host='127.0.0.1',
             port=5000,
             debug=False,
             ssl_context=ssl_context,
