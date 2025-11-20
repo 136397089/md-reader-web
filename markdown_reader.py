@@ -26,7 +26,7 @@ app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
 
 # 配置请求大小和超时
-app.config['MAX_CONTENT_LENGTH'] = CONFIG['max_file_size']
+# app.config['MAX_CONTENT_LENGTH'] = CONFIG['max_file_size']
 
 # 全局异常处理器
 @app.errorhandler(Exception)

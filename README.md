@@ -69,13 +69,13 @@ docker run -p 6100:5000 -v $(pwd)/..:/app markdown_reader
 #### 使用Docker Compose
 ```bash
 # 启动服务
-docker-compose up -d
+docker compose up -d
 
 # 查看日志
-docker-compose logs -f
+docker compose logs -f
 
 # 停止服务
-docker-compose down
+docker compose down
 ```
 
 ## 🎯 使用方法

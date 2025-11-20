@@ -69,13 +69,13 @@ docker run -p 6100:5000 -v $(pwd)/..:/app markdown_reader
 #### Using Docker Compose
 ```bash
 # Start service
-docker-compose up -d
+docker compose up -d
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Stop service
-docker-compose down
+docker compose down
 ```
 
 ## 🎯 Usage
