@@ -105,25 +105,19 @@ docker-compose down
 ## 📐 Math Formula Syntax
 
 ### Inline Formulas
-```markdown
 Mass-energy equation: $E = mc^2$
-```
 
 ### Block Formulas
-```markdown
 Integral formula:
 $$\int_0^1 x^2 dx = \frac{1}{3}$$
-```
 
 ### Matrix Example
-```markdown
 $$
 \begin{bmatrix}
 a & b \\
 c & d
 \end{bmatrix}
 $$
-```
 
 ## 🖼️ Image Usage
 
