@@ -11,7 +11,7 @@ SCRIPTS = '''
 
         // 退出登录
         function logout() {
-            if (confirm('确定要退出登录吗？')) {
+            if (confirm(TRANSLATIONS['confirm_logout'])) {
                 fetch('/api/logout', { method: 'POST' })
                     .then(() => {
                         window.location.href = '/login';
@@ -42,13 +42,13 @@ SCRIPTS = '''
                 .then(data => {
                     if (data.error) {
                         document.getElementById('fileList').innerHTML =
-                            `<li class="error">错误: ${data.error}</li>`;
+                            `<li class="error">${TRANSLATIONS['load_error']}${data.error}</li>`;
                         return;
                     }
 
                     currentPath = data.current_path;
                     document.getElementById('currentPath').textContent =
-                        `当前路径: ${currentPath || '/'}`;
+                        `${TRANSLATIONS['current_path']}${currentPath || '/'}`;
 
                     const backButton = document.getElementById('backButton');
                     if (currentPath) {
@@ -96,7 +96,7 @@ SCRIPTS = '''
                 .catch(error => {
                     console.error('Error:', error);
                     document.getElementById('fileList').innerHTML =
-                        '<li class="error">加载文件列表失败</li>';
+                        `<li class="error">${TRANSLATIONS['load_file_list_error']}</li>`;
                 });
         }
 
@@ -109,14 +109,14 @@ SCRIPTS = '''
         // 加载Markdown文件
         function loadMarkdownFile(filePath) {
             document.getElementById('markdownContent').innerHTML =
-                '<div class="loading">正在加载...</div>';
+                `<div class="loading">${TRANSLATIONS['loading']}</div>`;
 
             fetch(`/api/markdown?file=${encodeURIComponent(filePath)}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
                         document.getElementById('markdownContent').innerHTML =
-                            `<div class="error">错误: ${data.error}</div>`;
+                            `<div class="error">${TRANSLATIONS['load_error']}${data.error}</div>`;
                         return;
                     }
 
@@ -130,11 +130,11 @@ SCRIPTS = '''
                     if (window.MathJax) {
                         MathJax.typesetPromise([document.getElementById('markdownContent')])
                             .then(() => {
-                                console.log('MathJax渲染完成');
+                                console.log(TRANSLATIONS['mathjax_done']);
                                 // 为数学公式添加样式类
                                 addMathStyles();
                             })
-                            .catch((err) => console.log('MathJax渲染错误:', err));
+                            .catch((err) => console.log(TRANSLATIONS['mathjax_error'], err));
                     }
 
                     // 处理图片加载错误
@@ -145,7 +145,7 @@ SCRIPTS = '''
                             this.style.padding = '10px';
                             this.style.backgroundColor = '#f8d7da';
                             this.style.color = '#721c24';
-                            this.title = '图片加载失败: ' + this.src;
+                            this.title = TRANSLATIONS['image_load_error'] + this.src;
                         };
 
                         // 添加图片点击放大功能
@@ -167,7 +167,7 @@ SCRIPTS = '''
                 .catch(error => {
                     console.error('Error:', error);
                     document.getElementById('markdownContent').innerHTML =
-                        '<div class="error">加载Markdown文件失败</div>';
+                        `<div class="error">${TRANSLATIONS['load_markdown_error']}</div>`;
                 });
         }
 
@@ -248,10 +248,10 @@ SCRIPTS = '''
 
             if (headerVisible) {
                 header.classList.remove('hidden');
-                toggleBtn.textContent = '隐藏标题栏';
+                toggleBtn.textContent = TRANSLATIONS['hide_header'];
             } else {
                 header.classList.add('hidden');
-                toggleBtn.textContent = '显示标题栏';
+                toggleBtn.textContent = TRANSLATIONS['show_header'];
             }
         }
 

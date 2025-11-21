@@ -62,52 +62,52 @@ MATHJAX_CONFIG = '''
 
 # 欢迎信息内容
 WELCOME_CONTENT = '''
-                        <h2>欢迎使用 Markdown 阅读器</h2>
-                        <p>请从左侧文件浏览器选择一个 Markdown 文件开始阅读</p>
-                        <p>点击左上角的"文件"按钮可以隐藏/显示文件浏览器</p>
-                        <p>当前连接已通过 HTTPS 加密保护</p>
-                        <p>支持 LaTeX 数学公式渲染</p>
-                        <p>支持本地图片显示</p>
+                        <h2>{{ t['welcome_title'] }}</h2>
+                        <p>{{ t['welcome_msg1'] }}</p>
+                        <p>{{ t['welcome_msg2'] }}</p>
+                        <p>{{ t['welcome_https'] }}</p>
+                        <p>{{ t['welcome_latex'] }}</p>
+                        <p>{{ t['welcome_images'] }}</p>
 
                         <div class="math-examples">
-                            <h3>数学公式示例</h3>
-                            <p><strong>行内公式：</strong>使用单个 $ 符号包围，如 $E = mc^2$</p>
-                            <p><strong>块级公式：</strong>使用双 $ 符号包围：</p>
+                            <h3>{{ t['math_examples'] }}</h3>
+                            <p><strong>{{ t['inline_math'] }}</strong>{{ t['inline_math_desc'] }}</p>
+                            <p><strong>{{ t['block_math'] }}</strong>{{ t['block_math_desc'] }}</p>
                             $$\\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}$$
-                            <p><strong>矩阵示例：</strong></p>
+                            <p><strong>{{ t['matrix_example'] }}</strong></p>
                             $$\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}$$
-                            <p><strong>求和公式：</strong></p>
+                            <p><strong>{{ t['sum_example'] }}</strong></p>
                             $$\\sum_{n=1}^{\\infty} \\frac{1}{n^2} = \\frac{\\pi^2}{6}$$
                         </div>
 
                         <div class="image-examples">
-                            <h3>图片支持说明</h3>
-                            <p><strong>支持格式：</strong>JPG, PNG, GIF, BMP, WebP, SVG 等</p>
-                            <p><strong>相对路径：</strong>![描述](./images/pic.jpg)</p>
-                            <p><strong>绝对路径：</strong>![描述](/path/to/image.png)</p>
-                            <p><strong>网络图片：</strong>![描述](https://example.com/image.jpg)</p>
-                            <p><strong>安全特性：</strong>自动防护路径遍历攻击，确保文件访问安全</p>
+                            <h3>{{ t['image_support'] }}</h3>
+                            <p><strong>{{ t['support_formats'] }}</strong>{{ t['support_formats_desc'] }}</p>
+                            <p><strong>{{ t['relative_path'] }}</strong>![描述](./images/pic.jpg)</p>
+                            <p><strong>{{ t['absolute_path'] }}</strong>![描述](/path/to/image.png)</p>
+                            <p><strong>{{ t['web_image'] }}</strong>![描述](https://example.com/image.jpg)</p>
+                            <p><strong>{{ t['security_features'] }}</strong>{{ t['security_features_desc'] }}</p>
                         </div>
 '''
 
 # 主页面HTML模板
-from .styles import STYLES
-from .scripts import SCRIPTS
+# from .styles import STYLES  <-- No longer needed here
+# from .scripts import SCRIPTS <-- No longer needed here
 
-MAIN_TEMPLATE = f'''
+MAIN_TEMPLATE = '''
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="{{ lang }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Markdown阅读器</title>
+    <title>{{ t['main_title'] }}</title>
 
     <!-- MathJax配置 -->
-    {MATHJAX_CONFIG}
+    {{ mathjax_config|safe }}
 
     <style>
-{STYLES}
+{{ styles|safe }}
     </style>
 </head>
 
@@ -115,17 +115,17 @@ MAIN_TEMPLATE = f'''
     <div class="app-container">
         <!-- 固定的隐藏/显示标题栏按钮 -->
         <button class="toggle-header" onclick="toggleHeader()" id="toggleHeaderBtn">
-            隐藏标题栏
+            {{ t['hide_header'] }}
         </button>
 
         <!-- 左侧文件浏览器 -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h2>文件浏览器</h2>
+                <h2>{{ t['file_browser'] }}</h2>
             </div>
             <div class="sidebar-content">
-                <div class="current-path" id="currentPath">当前路径: /</div>
-                <button class="back-button" id="backButton" onclick="goBack()" style="display: none;">← 返回上级</button>
+                <div class="current-path" id="currentPath">{{ t['current_path'] }}/</div>
+                <button class="back-button" id="backButton" onclick="goBack()" style="display: none;">{{ t['back_to_parent'] }}</button>
                 <ul class="file-list" id="fileList">
                     <!-- 文件列表将通过JavaScript动态加载 -->
                 </ul>
@@ -137,13 +137,15 @@ MAIN_TEMPLATE = f'''
             <div class="header">
                 <div class="header-left">
                     <button class="toggle-sidebar" onclick="toggleSidebar()">
-                        <span id="toggleIcon">◀</span> 文件
+                        <span id="toggleIcon">◀</span> {{ t['files_btn'] }}
                     </button>
-                    <h1>Markdown 阅读器</h1>
+                    <h1>{{ t['main_title'] }}</h1>
                 </div>
                 <div class="header-right">
-                    <span class="user-info">已认证</span>
-                    <button class="logout-btn" onclick="logout()">退出登录</button>
+                    <a href="?lang=zh" class="lang-btn {% if lang == 'zh' %}active{% endif %}" style="margin-right: 10px; text-decoration: none; color: #555;">中文</a>
+                    <a href="?lang=en" class="lang-btn {% if lang == 'en' %}active{% endif %}" style="margin-right: 20px; text-decoration: none; color: #555;">English</a>
+                    <span class="user-info">{{ t['authenticated'] }}</span>
+                    <button class="logout-btn" onclick="logout()">{{ t['logout'] }}</button>
                 </div>
 
             </div>
@@ -159,7 +161,8 @@ MAIN_TEMPLATE = f'''
     </div>
 
     <script>
-{SCRIPTS}
+        const TRANSLATIONS = {{ translations_json|safe }};
+{{ scripts|safe }}
     </script>
 </body>
 

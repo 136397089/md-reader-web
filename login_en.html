@@ -1,11 +1,10 @@
-# 登录页面HTML模板
-LOGIN_TEMPLATE = '''
+
 <!DOCTYPE html>
-<html lang="{{ lang }}">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ t['login_title'] }}</title>
+    <title>Login - Markdown Reader</title>
     <style>
         * {
             margin: 0;
@@ -180,51 +179,57 @@ LOGIN_TEMPLATE = '''
 </head>
 <body>
     <div class="lang-switch">
-        <a href="?lang=zh" class="lang-btn {% if lang == 'zh' %}active{% endif %}">中文</a>
-        <a href="?lang=en" class="lang-btn {% if lang == 'en' %}active{% endif %}">English</a>
+        <a href="?lang=zh" class="lang-btn ">中文</a>
+        <a href="?lang=en" class="lang-btn active">English</a>
     </div>
     <div class="login-container">
         <div class="login-header">
-            <h1>{{ t['secure_login'] }}</h1>
-            <p>{{ t['app_subtitle'] }}</p>
+            <h1>Secure Login</h1>
+            <p>Markdown Reader - Secure Access</p>
         </div>
         
-        {% if error %}
-        <div class="error">{{ error }}</div>
-        {% endif %}
+        
         
         <form id="loginForm">
             <div class="form-group">
-                <label for="password">{{ t['password_label'] }}</label>
+                <label for="password">Password:</label>
                 <input type="password" id="password" name="password" required 
-                       placeholder="{{ t['password_placeholder'] }}" autocomplete="current-password">
+                       placeholder="Enter password" autocomplete="current-password">
             </div>
             
             <button type="submit" class="login-btn" id="loginBtn">
-                <span id="btnText">{{ t['login_btn'] }}</span>
+                <span id="btnText">Login</span>
             </button>
         </form>
         
         <div class="security-info">
-            <h4>{{ t['security_info_title'] }}</h4>
-            <p>{{ t['security_rsa'] }}</p>
-            <p>{{ t['security_https'] }}</p>
-            <p>{{ t['security_session'] }}</p>
-            <p>{{ t['security_images'] }}</p>
-            <p>{{ t['default_password'] }}</p>
+            <h4>Security Info</h4>
+            <p>• Password transmitted using RSA-2048 asymmetric encryption</p>
+            <p>• All communication encrypted via HTTPS</p>
+            <p>• Session expires automatically after 1 hour</p>
+            <p>• Supports local image display</p>
+            <p>• Default password: admin123</p>
         </div>
     </div>
 
     <script>
-        const PUBLIC_KEY = `{{ public_key }}`;
-        const TRANSLATIONS = {{ translations_json|safe }};
-        console.log('Translations loaded:', TRANSLATIONS);
+        const PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsRmFX+0xXLSiXh5zJVp6
+cbKEONrcMChK+C+KMSIx6oh9Or3/3giHAwT+FEH1moyYo4ysEN+vmtUuTclYFSh5
+AkqfYVsdHwlg3XSqCPL/RGke4Mwe14nPD0tJHiikF5PKguPGoBFdrZYUAzbCUgh4
+ejeZG8fmo9Q4zHLwAjGjYlWYJmmrSL+I1XTfr49LKuDbcWAvtaBg2zLxfbame+wK
+xSnoFdA1XZuQz3qf/ZX2sd8Rx7ypRxjCsqCGd4/PGqGrXkkXadLmN6FiExkT34A+
+88Mb7uSAfRnYJAZV+Ei19o7h/8o9NuzNcQczNU4O/LBkeosiShHOtC8EPFinG2RF
+swIDAQAB
+-----END PUBLIC KEY-----
+`;
+        const TRANSLATIONS = JSON.parse(`{"login_title": "Login - Markdown Reader", "secure_login": "Secure Login", "app_subtitle": "Markdown Reader - Secure Access", "password_label": "Password:", "password_placeholder": "Enter password", "login_btn": "Login", "encrypting": "Encrypting...", "logging_in": "Logging in...", "security_info_title": "Security Info", "security_rsa": "\u2022 Password transmitted using RSA-2048 asymmetric encryption", "security_https": "\u2022 All communication encrypted via HTTPS", "security_session": "\u2022 Session expires automatically after 1 hour", "security_images": "\u2022 Supports local image display", "default_password": "\u2022 Default password: admin123", "encryption_failed": "Password encryption failed", "enter_password": "Please enter password", "login_failed": "Login failed", "password_error": "Incorrect password", "main_title": "Markdown Reader", "welcome_title": "Welcome to Markdown Reader", "welcome_msg1": "Please select a Markdown file from the left file browser to start reading", "welcome_msg2": "Click the \"Files\" button in the top left to hide/show the file browser", "welcome_https": "Current connection is protected by HTTPS encryption", "welcome_latex": "Supports LaTeX math formula rendering", "welcome_images": "Supports local image display", "math_examples": "Math Formula Examples", "inline_math": "Inline Formula:", "inline_math_desc": "Enclosed by single $, e.g., $E = mc^2$", "block_math": "Block Formula:", "block_math_desc": "Enclosed by double $:", "matrix_example": "Matrix Example:", "sum_example": "Summation Formula:", "image_support": "Image Support", "support_formats": "Supported Formats:", "support_formats_desc": "JPG, PNG, GIF, BMP, WebP, SVG, etc.", "relative_path": "Relative Path:", "absolute_path": "Absolute Path:", "web_image": "Web Image:", "security_features": "Security Features:", "security_features_desc": "Automatic protection against path traversal attacks", "hide_header": "Hide Header", "show_header": "Show Header", "file_browser": "File Browser", "current_path": "Current Path: ", "back_to_parent": "\u2190 Back", "files_btn": "Files", "authenticated": "Authenticated", "logout": "Logout", "confirm_logout": "Are you sure you want to logout?", "loading": "Loading...", "load_error": "Error: ", "load_file_list_error": "Failed to load file list", "load_markdown_error": "Failed to load Markdown file", "mathjax_done": "MathJax rendering complete", "mathjax_error": "MathJax rendering error:", "image_load_error": "Image load failed: ", "request_too_large": "Request content too large", "server_error": "Internal server error, please try again later", "page_not_found": "Page not found", "access_denied": "Access denied", "missing_params": "Missing necessary parameters", "invalid_path": "Invalid file path", "only_markdown": "Can only edit Markdown files", "file_path_invalid": "File path invalid", "write_failed": "Failed to write file: ", "server_err_prefix": "Server error: ", "missing_password": "Missing password", "path_invalid": "Invalid path", "path_not_exist": "Path does not exist", "permission_denied": "Permission denied to access this directory", "not_markdown": "Not a Markdown file", "file_not_exist": "File does not exist", "file_too_large": "File too large", "info_failed": "Failed to get file info: ", "encoding_error": "File encoding not supported: ", "read_failed": "File read failed: ", "read_file_failed": "Failed to read file: ", "invalid_img_path": "Invalid image path", "img_not_exist": "Image file does not exist", "unsupported_img": "Unsupported image format", "img_read_failed": "Failed to read image file", "lang_zh": "\u4e2d\u6587", "lang_en": "English", "switch_lang": "\u5207\u6362\u5230\u4e2d\u6587"}`);
         
         async function encryptPassword(password) {
             try {
                 const keyData = PUBLIC_KEY.replace(/-----BEGIN PUBLIC KEY-----/, '')
                                         .replace(/-----END PUBLIC KEY-----/, '')
-                                        .replace(/\\s/g, '');
+                                        .replace(/\s/g, '');
                 
                 const binaryKey = Uint8Array.from(atob(keyData), c => c.charCodeAt(0));
                 
@@ -302,4 +307,3 @@ LOGIN_TEMPLATE = '''
     </script>
 </body>
 </html>
-'''

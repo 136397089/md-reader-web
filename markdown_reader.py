@@ -18,8 +18,11 @@ import mimetypes
 import re
 import argparse
 import sys
-from template.main_template import MAIN_TEMPLATE
+from template.main_template import MAIN_TEMPLATE, MATHJAX_CONFIG
 from template.login_template import LOGIN_TEMPLATE
+from template.styles import STYLES
+from template.scripts import SCRIPTS
+from translations import TRANSLATIONS
 
 
 
@@ -35,18 +38,24 @@ app.secret_key = secrets.token_hex(32)
 @app.errorhandler(Exception)
 def handle_exception(e):
     """全局异常处理器"""
+    lang = session.get('lang', 'zh')
+    t = TRANSLATIONS[lang]
     print(f"未处理的异常: {type(e).__name__}: {str(e)}")
     if hasattr(e, 'code') and e.code == 413:
-        return jsonify({'error': '请求内容过大'}), 413
-    return jsonify({'error': '服务器内部错误，请稍后重试'}), 500
+        return jsonify({'error': t['request_too_large']}), 413
+    return jsonify({'error': t['server_error']}), 500
 
 @app.errorhandler(404)
 def not_found(e):
-    return jsonify({'error': '页面不存在'}), 404
+    lang = session.get('lang', 'zh')
+    t = TRANSLATIONS[lang]
+    return jsonify({'error': t['page_not_found']}), 404
 
 @app.errorhandler(403)
 def forbidden(e):
-    return jsonify({'error': '访问被拒绝'}), 403
+    lang = session.get('lang', 'zh')
+    t = TRANSLATIONS[lang]
+    return jsonify({'error': t['access_denied']}), 403
 
 # 生成RSA密钥对
 def generate_key_pair():
@@ -187,37 +196,55 @@ def process_markdown_images(html_content, file_path):
 @app.route('/login')
 def login():
     """登录页面"""
+    lang = request.args.get('lang', session.get('lang', 'zh'))
+    session['lang'] = lang
+    
     if session.get('authenticated'):
         return redirect(url_for('index'))
     
     error = request.args.get('error')
-    return render_template_string(LOGIN_TEMPLATE, public_key=PUBLIC_KEY_PEM, error=error)
+    t = TRANSLATIONS[lang]
+    
+    # 将翻译字典转换为JSON字符串传递给前端
+    import json
+    translations_json = json.dumps(t)
+    
+    return render_template_string(
+        LOGIN_TEMPLATE, 
+        public_key=PUBLIC_KEY_PEM, 
+        error=error,
+        t=t,
+        lang=lang,
+        translations_json=translations_json
+    )
 
 
 @app.route('/api/save', methods=['POST'])
 @require_auth
 def save_markdown():
     """保存Markdown文件API"""
+    lang = session.get('lang', 'zh')
+    t = TRANSLATIONS[lang]
     try:
         data = request.get_json()
         file_path = data.get('file')
         content = data.get('content')
         
         if not file_path or not content:
-            return jsonify({'success': False, 'error': '缺少必要参数'})
+            return jsonify({'success': False, 'error': t['missing_params']})
         
         if not is_safe_path(file_path):
-            return jsonify({'success': False, 'error': '无效的文件路径'})
+            return jsonify({'success': False, 'error': t['invalid_path']})
         
         # 检查文件是否是Markdown文件
         if not file_path.lower().endswith(('.md', '.markdown')):
-            return jsonify({'success': False, 'error': '只能编辑Markdown文件'})
+            return jsonify({'success': False, 'error': t['only_markdown']})
         
         base_dir = os.getcwd()
         full_path = get_safe_path(base_dir, file_path)
         
         if not full_path:
-            return jsonify({'success': False, 'error': '文件路径无效'})
+            return jsonify({'success': False, 'error': t['file_path_invalid']})
         
         # 创建备份
         backup_dir = os.path.join(base_dir, '.backups')
@@ -242,32 +269,34 @@ def save_markdown():
             return jsonify({'success': True})
             
         except Exception as e:
-            return jsonify({'success': False, 'error': f'写入文件失败: {str(e)}'})
+            return jsonify({'success': False, 'error': f"{t['write_failed']}{str(e)}"})
             
     except Exception as e:
-        return jsonify({'success': False, 'error': f'服务器错误: {str(e)}'})
+        return jsonify({'success': False, 'error': f"{t['server_err_prefix']}{str(e)}"})
 
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
     """登录API"""
+    lang = session.get('lang', 'zh')
+    t = TRANSLATIONS[lang]
     try:
         data = request.get_json()
         encrypted_password = data.get('encrypted_password')
         
         if not encrypted_password:
-            return jsonify({'success': False, 'error': '缺少密码'})
+            return jsonify({'success': False, 'error': t['missing_password']})
         
         if verify_password(encrypted_password):
             session['authenticated'] = True
             session['login_time'] = datetime.now().isoformat()
             return jsonify({'success': True})
         else:
-            return jsonify({'success': False, 'error': '密码错误'})
+            return jsonify({'success': False, 'error': t['password_error']})
             
     except Exception as e:
         print(f"登录错误: {e}")
-        return jsonify({'success': False, 'error': '登录失败'})
+        return jsonify({'success': False, 'error': t['login_failed']})
 
 @app.route('/api/logout', methods=['POST'])
 def api_logout():
@@ -279,23 +308,41 @@ def api_logout():
 @require_auth
 def index():
     """主页面"""
-    return render_template_string(MAIN_TEMPLATE)
+    lang = request.args.get('lang', session.get('lang', 'zh'))
+    session['lang'] = lang
+    t = TRANSLATIONS[lang]
+    
+    # 将翻译字典转换为JSON字符串传递给前端
+    import json
+    translations_json = json.dumps(t)
+    
+    return render_template_string(
+        MAIN_TEMPLATE,
+        t=t,
+        lang=lang,
+        translations_json=translations_json,
+        mathjax_config=MATHJAX_CONFIG,
+        styles=STYLES,
+        scripts=SCRIPTS
+    )
 
 @app.route('/api/files')
 @require_auth
 def list_files():
     """获取文件列表API"""
+    lang = session.get('lang', 'zh')
+    t = TRANSLATIONS[lang]
     try:
         path = request.args.get('path', '')
         
         if not is_safe_path(path):
-            return jsonify({'error': '无效的路径'})
+            return jsonify({'error': t['path_invalid']})
         
         base_dir = os.getcwd()
         full_path = get_safe_path(base_dir, path)
         
         if not full_path or not os.path.exists(full_path):
-            return jsonify({'error': '路径不存在'})
+            return jsonify({'error': t['path_not_exist']})
         
         dir_items = []
         file_items = []
@@ -326,7 +373,7 @@ def list_files():
             items = dir_items + file_items
             
         except PermissionError:
-            return jsonify({'error': '没有权限访问此目录'})
+            return jsonify({'error': t['permission_denied']})
         
         return jsonify({
             'current_path': path,
@@ -334,34 +381,36 @@ def list_files():
         })
         
     except Exception as e:
-        return jsonify({'error': f'服务器错误: {str(e)}'})
+        return jsonify({'error': f"{t['server_err_prefix']}{str(e)}"})
 
 @app.route('/api/markdown')
 @require_auth
 def get_markdown():
     """获取Markdown内容API"""
+    lang = session.get('lang', 'zh')
+    t = TRANSLATIONS[lang]
     try:
         file_path = request.args.get('file', '')
         
         if not file_path or not is_safe_path(file_path):
-            return jsonify({'error': '无效的文件路径'})
+            return jsonify({'error': t['file_path_invalid']})
         
         if not file_path.lower().endswith(('.md', '.markdown')):
-            return jsonify({'error': '不是Markdown文件'})
+            return jsonify({'error': t['not_markdown']})
         
         base_dir = os.getcwd()
         full_path = get_safe_path(base_dir, file_path)
         
         if not full_path or not os.path.exists(full_path):
-            return jsonify({'error': '文件不存在'})
+            return jsonify({'error': t['file_not_exist']})
         
         # 检查文件大小
         try:
             file_size = os.path.getsize(full_path)
             if file_size > CONFIG['max_file_size']:
-                return jsonify({'error': f'文件过大 (>{CONFIG["max_file_size"]//1024//1024}MB)'})
+                return jsonify({'error': f"{t['file_too_large']} (>{CONFIG['max_file_size']//1024//1024}MB)"})
         except OSError as e:
-            return jsonify({'error': f'无法获取文件信息: {str(e)}'})
+            return jsonify({'error': f"{t['info_failed']}{str(e)}"})
 
         try:
             with open(full_path, 'r', encoding='utf-8') as f:
@@ -371,9 +420,9 @@ def get_markdown():
                 with open(full_path, 'r', encoding='gbk') as f:
                     content = f.read()
             except Exception as e:
-                return jsonify({'error': f'文件编码不支持: {str(e)}'})
+                return jsonify({'error': f"{t['encoding_error']}{str(e)}"})
         except IOError as e:
-            return jsonify({'error': f'文件读取失败: {str(e)}'})
+            return jsonify({'error': f"{t['read_failed']}{str(e)}"})
         
         # 转换为HTML，保护数学公式
         # 首先保护数学公式，避免被markdown转义
@@ -442,28 +491,30 @@ def get_markdown():
         })
         
     except Exception as e:
-        return jsonify({'error': f'读取文件失败: {str(e)}'})
+        return jsonify({'error': f"{t['read_file_failed']}{str(e)}"})
 
 @app.route('/api/image')
 @require_auth
 def get_image():
     """获取图片文件API"""
+    lang = session.get('lang', 'zh')
+    t = TRANSLATIONS[lang]
     try:
         image_path = request.args.get('path', '')
         
         if not image_path or not is_safe_path(image_path):
-            return jsonify({'error': '无效的图片路径'}), 400
+            return jsonify({'error': t['invalid_img_path']}), 400
         
         base_dir = os.getcwd()
         full_path = get_safe_path(base_dir, image_path)
         
         if not full_path or not os.path.exists(full_path):
-            return jsonify({'error': '图片文件不存在'}), 404
+            return jsonify({'error': t['img_not_exist']}), 404
         
         # 检查文件扩展名
         file_ext = os.path.splitext(full_path)[1].lower()
         if file_ext not in ALLOWED_IMAGE_EXTENSIONS:
-            return jsonify({'error': '不支持的图片格式'}), 400
+            return jsonify({'error': t['unsupported_img']}), 400
         
         # 获取MIME类型
         mime_type, _ = mimetypes.guess_type(full_path)
@@ -479,11 +530,11 @@ def get_image():
             )
         except Exception as e:
             print(f"发送图片文件失败: {e}")
-            return jsonify({'error': '图片文件读取失败'}), 500
+            return jsonify({'error': t['img_read_failed']}), 500
             
     except Exception as e:
         print(f"图片API错误: {e}")
-        return jsonify({'error': f'服务器错误: {str(e)}'}), 500
+        return jsonify({'error': f"{t['server_err_prefix']}{str(e)}"}), 500
 
 def create_ssl_context():
     """创建SSL上下文"""
