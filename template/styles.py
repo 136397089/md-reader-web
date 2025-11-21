@@ -62,7 +62,7 @@ STYLES = '''
 
         .header {
             background: white;
-            padding: 24px 32px;
+            padding: 12px 24px;
             border-bottom: 1px solid #e5e7eb;
             display: flex;
             align-items: center;
@@ -84,7 +84,7 @@ STYLES = '''
             background: #374151;
             color: white;
             border: none;
-            padding: 12px 18px;
+            padding: 8px 12px;
             border-radius: 8px;
             cursor: pointer;
             margin-right: 20px;
@@ -101,7 +101,7 @@ STYLES = '''
             background: #dc2626;
             color: white;
             border: none;
-            padding: 9px 16px;
+            padding: 6px 12px;
             border-radius: 6px;
             cursor: pointer;
             font-size: 13px;
@@ -124,7 +124,7 @@ STYLES = '''
 
         .header h1 {
             margin: 0;
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 700;
             color: #111827;
             letter-spacing: -0.7px;
