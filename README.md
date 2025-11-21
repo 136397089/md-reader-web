@@ -53,6 +53,9 @@ pip install flask markdown cryptography pillow -i https://pypi.tuna.tsinghua.edu
 #### 启动服务
 ```bash
 python markdown_reader.py
+
+# 或者指定目标文件夹
+python markdown_reader.py --target_folder /path/to/your/markdown/files
 ```
 
 ### 方式二：Docker部署
@@ -142,6 +145,7 @@ $$
 - **SSL**：自动生成自签名证书
 - **会话超时**：10000秒
 - **最大文件大小**：50MB
+- **目标文件夹**：启动时通过 `--target_folder` 指定
 
 ### 安全配置
 - **密码**：可在代码中修改 `stored_password`

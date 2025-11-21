@@ -53,6 +53,9 @@ pip install flask markdown cryptography pillow -i https://pypi.tuna.tsinghua.edu
 #### Start Service
 ```bash
 python markdown_reader.py
+
+# Or specify target folder
+python markdown_reader.py --target_folder /path/to/your/markdown/files
 ```
 
 ### Method 2: Docker Deployment
@@ -142,6 +145,7 @@ $$
 - **SSL**: Auto-generate self-signed certificates
 - **Session timeout**: 10000 seconds
 - **Max file size**: 50MB
+- **Target Folder**: Specify via `--target_folder` at startup
 
 ### Security Configuration
 - **Password**: Can be modified in code `stored_password`
