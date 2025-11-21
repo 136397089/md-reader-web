@@ -2,6 +2,8 @@
 
 一个功能丰富、安全可靠的Markdown文件浏览和编辑器，支持LaTeX数学公式、图片显示和加密认证。
 
+将markdown文档放在服务器上，通过浏览器随时随地进行阅读。
+
 ## ✨ 特性
 
 ### 🔒 安全特性
@@ -59,6 +61,8 @@ python markdown_reader.py --target_folder /path/to/your/markdown/files
 ```
 
 ### 方式二：Docker部署
+### 环境要求
+- docker
 
 #### 构建并运行
 ```bash

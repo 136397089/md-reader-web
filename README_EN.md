@@ -2,6 +2,8 @@
 
 A feature-rich, secure and reliable Markdown file browser and editor with LaTeX math formula support, image display, and encrypted authentication.
 
+Host markdown documents on a server and read them anytime, anywhere via a browser.
+
 ## ✨ Features
 
 ### 🔒 Security Features
@@ -59,6 +61,9 @@ python markdown_reader.py --target_folder /path/to/your/markdown/files
 ```
 
 ### Method 2: Docker Deployment
+
+#### Requirements
+- docker
 
 #### Build and Run
 ```bash
