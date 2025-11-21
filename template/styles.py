@@ -189,7 +189,8 @@ STYLES = '''
 
         .markdown-content {
             line-height: 1.8;
-            max-width: none;
+            max-width: 900px;
+            margin: 0 auto;
         }
 
         .markdown-content h1,
