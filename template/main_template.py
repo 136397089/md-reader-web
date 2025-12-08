@@ -69,8 +69,14 @@ WELCOME_CONTENT = '''
                         <p>{{ t['welcome_latex'] }}</p>
                         <p>{{ t['welcome_images'] }}</p>
 
-                        <div class="math-examples">
-                            <h3>{{ t['math_examples'] }}</h3>
+                        <div class="example-box math">
+                            <h3>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1.25rem; height: 1.25rem;">
+                                  <path d="M11.584 2.376a.75.75 0 01.832 0l9 6a.75.75 0 11-.832 1.248L12 3.901 3.416 9.624a.75.75 0 01-.832-1.248l9-6z" />
+                                  <path fill-rule="evenodd" d="M20.25 10.332v9.918H21a.75.75 0 010 1.5H3a.75.75 0 010-1.5h.75v-9.918a.75.75 0 01.634-.74A49.109 49.109 0 0112 9c2.59 0 5.134.367 7.516.94a.75.75 0 01.634.741zM12 10.5c-2.51 0-5.018.332-7.5.964V19.5h15v-8.036A47.609 47.609 0 0012 10.5zM12 11.25a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5a.75.75 0 01.75-.75zm-3.75.75a.75.75 0 00-1.5 0v4.5a.75.75 0 001.5 0v-4.5zm7.5 0a.75.75 0 00-1.5 0v4.5a.75.75 0 001.5 0v-4.5z" clip-rule="evenodd" />
+                                </svg>
+                                {{ t['math_examples'] }}
+                            </h3>
                             <p><strong>{{ t['inline_math'] }}</strong>{{ t['inline_math_desc'] }}</p>
                             <p><strong>{{ t['block_math'] }}</strong>{{ t['block_math_desc'] }}</p>
                             $$\\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}$$
@@ -80,8 +86,13 @@ WELCOME_CONTENT = '''
                             $$\\sum_{n=1}^{\\infty} \\frac{1}{n^2} = \\frac{\\pi^2}{6}$$
                         </div>
 
-                        <div class="image-examples">
-                            <h3>{{ t['image_support'] }}</h3>
+                        <div class="example-box images">
+                            <h3>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1.25rem; height: 1.25rem;">
+                                  <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clip-rule="evenodd" />
+                                </svg>
+                                {{ t['image_support'] }}
+                            </h3>
                             <p><strong>{{ t['support_formats'] }}</strong>{{ t['support_formats_desc'] }}</p>
                             <p><strong>{{ t['relative_path'] }}</strong>![描述](./images/pic.jpg)</p>
                             <p><strong>{{ t['absolute_path'] }}</strong>![描述](/path/to/image.png)</p>
@@ -109,6 +120,11 @@ MAIN_TEMPLATE = '''
     <style>
 {{ styles|safe }}
     </style>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -121,7 +137,12 @@ MAIN_TEMPLATE = '''
         <!-- 左侧文件浏览器 -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h2>{{ t['file_browser'] }}</h2>
+                <h2>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1.5rem; height: 1.5rem; color: var(--primary);">
+                      <path d="M11.25 4.533A9.707 9.707 0 006 3.75a9.753 9.753 0 00-3 9.75 9.753 9.753 0 003 9.75 9.753 9.753 0 005.25-.783v-17.934zm1.5 0v17.934a9.753 9.753 0 005.25.783 9.753 9.753 0 003-9.75 9.753 9.753 0 00-3-9.75 9.707 9.707 0 00-5.25.783z" />
+                    </svg>
+                    {{ t['file_browser'] }}
+                </h2>
             </div>
             <div class="sidebar-content">
                 <div class="current-path" id="currentPath">{{ t['current_path'] }}/</div>
@@ -137,23 +158,38 @@ MAIN_TEMPLATE = '''
             <div class="header">
                 <div class="header-left">
                     <button class="toggle-sidebar" onclick="toggleSidebar()">
-                        <span id="toggleIcon">◀</span> {{ t['files_btn'] }}
+                        <span id="toggleIcon" style="display: flex; align-items: center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1.25rem; height: 1.25rem;">
+                              <path fill-rule="evenodd" d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z" clip-rule="evenodd" />
+                            </svg>
+                        </span> 
+                        {{ t['files_btn'] }}
                     </button>
                     <h1>{{ t['main_title'] }}</h1>
                 </div>
                 <div class="header-right">
-                    <a href="?lang=zh" class="lang-btn {% if lang == 'zh' %}active{% endif %}" style="margin-right: 10px; text-decoration: none; color: #555;">中文</a>
-                    <a href="?lang=en" class="lang-btn {% if lang == 'en' %}active{% endif %}" style="margin-right: 20px; text-decoration: none; color: #555;">English</a>
+                    <button class="btn-icon" onclick="toggleTheme()" id="themeToggle" title="Toggle Theme">
+                        <!-- Icon will be set by JS -->
+                    </button>
+                    <a href="?lang=zh" class="lang-btn {% if lang == 'zh' %}active{% endif %}">中文</a>
+                    <a href="?lang=en" class="lang-btn {% if lang == 'en' %}active{% endif %}">English</a>
                     <span class="user-info">{{ t['authenticated'] }}</span>
-                    <button class="logout-btn" onclick="logout()">{{ t['logout'] }}</button>
+                    <button class="logout-btn" onclick="logout()">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1rem; height: 1rem;">
+                          <path fill-rule="evenodd" d="M7.5 3.75A1.5 1.5 0 006 5.25v13.5a1.5 1.5 0 001.5 1.5h6a1.5 1.5 0 001.5-1.5V15a.75.75 0 011.5 0v3.75a3 3 0 01-3 3h-6a3 3 0 01-3-3V5.25a3 3 0 013-3h6a3 3 0 013 3V9A.75.75 0 0115 9V5.25a1.5 1.5 0 00-1.5-1.5h-6zm10.72 4.72a.75.75 0 011.06 0l3 3a.75.75 0 010 1.06l-3 3a.75.75 0 11-1.06-1.06l1.72-1.72H9a.75.75 0 010-1.5h10.94l-1.72-1.72a.75.75 0 010-1.06z" clip-rule="evenodd" />
+                        </svg>
+                        {{ t['logout'] }}
+                    </button>
                 </div>
 
             </div>
 
             <div class="content">
-                <div id="markdownContent">
-                    <div class="welcome-message">
+                <div class="markdown-wrapper">
+                    <div id="markdownContent">
+                        <div class="welcome-message">
 {WELCOME_CONTENT}
+                        </div>
                     </div>
                 </div>
             </div>
