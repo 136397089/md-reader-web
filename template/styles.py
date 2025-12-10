@@ -203,15 +203,22 @@ STYLES = '''
         .header {
             background: var(--bg-header);
             backdrop-filter: blur(8px);
-            padding: 16px 32px;
+            padding: 0;
             border-bottom: 1px solid var(--border-color);
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: column;
             position: sticky;
             top: 0;
             z-index: 10;
             transition: transform 0.3s ease;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 32px;
+            width: 100%;
         }
         
         .header.hidden {
@@ -335,8 +342,105 @@ STYLES = '''
         .markdown-wrapper {
             max-width: 860px;
             margin: 0 auto;
-            padding: 48px 32px 96px;
+            padding: 24px 32px 96px;
         }
+
+        /* Tab Bar Styling */
+        .tab-bar-container {
+            background: rgba(255, 255, 255, 0.5); /* Slight transparency */
+            border-top: 1px solid var(--border-color);
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        
+        [data-theme="dark"] .tab-bar-container {
+            background: rgba(30, 41, 59, 0.5);
+        }
+        
+        .header.hidden ~ .content .tab-bar-container {
+            /* No longer needed as it moves with header */
+        }
+
+        .tab-bar {
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none;  /* IE 10+ */
+            width: 100%;
+        }
+        
+        .tab-bar::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+
+        .tab {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            border-right: 1px solid var(--border-color);
+            border-bottom: 2px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: all 0.2s;
+            max-width: 180px;
+        }
+
+        .tab:hover {
+            background: var(--bg-body);
+            color: var(--text-main);
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: var(--bg-surface);
+        }
+
+        .tab-icon {
+            display: flex;
+            align-items: center;
+            color: inherit;
+            transform: scale(0.9);
+        }
+
+        .tab-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tab-close {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-left: 4px;
+            opacity: 0.6;
+            transition: all 0.2s;
+        }
+
+        .tab-close:hover {
+            background: var(--danger-hover);
+            color: white;
+            opacity: 1;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
 
         /* Markdown Typography */
         .markdown-content {

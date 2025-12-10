@@ -156,37 +156,44 @@ MAIN_TEMPLATE = '''
         <!-- 主内容区域 -->
         <div class="main-content">
             <div class="header">
-                <div class="header-left">
-                    <button class="toggle-sidebar" onclick="toggleSidebar()">
-                        <span id="toggleIcon" style="display: flex; align-items: center;">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1.25rem; height: 1.25rem;">
-                              <path fill-rule="evenodd" d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z" clip-rule="evenodd" />
+                <div class="header-top">
+                    <div class="header-left">
+                        <button class="toggle-sidebar" onclick="toggleSidebar()">
+                            <span id="toggleIcon" style="display: flex; align-items: center;">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1.25rem; height: 1.25rem;">
+                                  <path fill-rule="evenodd" d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z" clip-rule="evenodd" />
+                                </svg>
+                            </span> 
+                            {{ t['files_btn'] }}
+                        </button>
+                        <h1>{{ t['main_title'] }}</h1>
+                    </div>
+                    <div class="header-right">
+                        <button class="btn-icon" onclick="toggleTheme()" id="themeToggle" title="Toggle Theme">
+                            <!-- Icon will be set by JS -->
+                        </button>
+                        <a href="?lang=zh" class="lang-btn {% if lang == 'zh' %}active{% endif %}">中文</a>
+                        <a href="?lang=en" class="lang-btn {% if lang == 'en' %}active{% endif %}">English</a>
+                        <span class="user-info">{{ t['authenticated'] }}</span>
+                        <button class="logout-btn" onclick="logout()">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1rem; height: 1rem;">
+                              <path fill-rule="evenodd" d="M7.5 3.75A1.5 1.5 0 006 5.25v13.5a1.5 1.5 0 001.5 1.5h6a1.5 1.5 0 001.5-1.5V15a.75.75 0 011.5 0v3.75a3 3 0 01-3 3h-6a3 3 0 01-3-3V5.25a3 3 0 013-3h6a3 3 0 013 3V9A.75.75 0 0115 9V5.25a1.5 1.5 0 00-1.5-1.5h-6zm10.72 4.72a.75.75 0 011.06 0l3 3a.75.75 0 010 1.06l-3 3a.75.75 0 11-1.06-1.06l1.72-1.72H9a.75.75 0 010-1.5h10.94l-1.72-1.72a.75.75 0 010-1.06z" clip-rule="evenodd" />
                             </svg>
-                        </span> 
-                        {{ t['files_btn'] }}
-                    </button>
-                    <h1>{{ t['main_title'] }}</h1>
+                            {{ t['logout'] }}
+                        </button>
+                    </div>
                 </div>
-                <div class="header-right">
-                    <button class="btn-icon" onclick="toggleTheme()" id="themeToggle" title="Toggle Theme">
-                        <!-- Icon will be set by JS -->
-                    </button>
-                    <a href="?lang=zh" class="lang-btn {% if lang == 'zh' %}active{% endif %}">中文</a>
-                    <a href="?lang=en" class="lang-btn {% if lang == 'en' %}active{% endif %}">English</a>
-                    <span class="user-info">{{ t['authenticated'] }}</span>
-                    <button class="logout-btn" onclick="logout()">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1rem; height: 1rem;">
-                          <path fill-rule="evenodd" d="M7.5 3.75A1.5 1.5 0 006 5.25v13.5a1.5 1.5 0 001.5 1.5h6a1.5 1.5 0 001.5-1.5V15a.75.75 0 011.5 0v3.75a3 3 0 01-3 3h-6a3 3 0 01-3-3V5.25a3 3 0 013-3h6a3 3 0 013 3V9A.75.75 0 0115 9V5.25a1.5 1.5 0 00-1.5-1.5h-6zm10.72 4.72a.75.75 0 011.06 0l3 3a.75.75 0 010 1.06l-3 3a.75.75 0 11-1.06-1.06l1.72-1.72H9a.75.75 0 010-1.5h10.94l-1.72-1.72a.75.75 0 010-1.06z" clip-rule="evenodd" />
-                        </svg>
-                        {{ t['logout'] }}
-                    </button>
+                
+                <div class="tab-bar-container">
+                    <div class="tab-bar" id="tabBar">
+                        <!-- Tabs will be injected here -->
+                    </div>
                 </div>
-
             </div>
 
             <div class="content">
-                <div class="markdown-wrapper">
-                    <div id="markdownContent">
+                <div class="markdown-wrapper" id="markdownWrapper">
+                    <div id="welcome-tab" class="tab-content active">
                         <div class="welcome-message">
 {WELCOME_CONTENT}
                         </div>

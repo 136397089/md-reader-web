@@ -4,6 +4,8 @@ SCRIPTS = '''
         let currentPath = '';
         let currentFile = '';
         let sidebarVisible = true;
+        let openTabs = []; // Array of { path, name }
+        let activeTabPath = null;
         
         // Icons
         const ICONS = {
@@ -29,6 +31,9 @@ SCRIPTS = '''
 </svg>`,
             moon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1.25rem; height: 1.25rem;">
   <path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.7-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" clip-rule="evenodd" />
+</svg>`,
+            close: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 100%; height: 100%;">
+  <path fill-rule="evenodd" d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z" clip-rule="evenodd" />
 </svg>`
         };
 
@@ -125,17 +130,16 @@ SCRIPTS = '''
                         const li = document.createElement('li');
                         li.className = `file-item ${item.type}`;
 
+                        li.dataset.path = item.path; // Store full path
+
                         if (item.type === 'folder') {
                             li.innerHTML = `${ICONS.folder} ${item.name}`;
                             li.onclick = () => loadFileList(item.path);
                         } else if (item.type === 'markdown') {
                             li.innerHTML = `${ICONS.markdown} ${item.name}`;
                             li.onclick = () => {
-                                loadMarkdownFile(item.path);
-                                document.querySelectorAll('.file-item').forEach(el =>
-                                    el.classList.remove('active'));
-                                li.classList.add('active');
-                                currentFile = item.path;
+                                openFile(item.path, item.name);
+                                // Sidebar update is handled in switchTab
                             };
                         } else {
                             li.innerHTML = `${ICONS.file} ${item.name}`;
@@ -167,39 +171,152 @@ SCRIPTS = '''
             loadFileList(parentPath);
         }
 
+        // Tab Management
+        function openFile(path, name) {
+            const existingTab = openTabs.find(t => t.path === path);
+            
+            if (existingTab) {
+                switchTab(path);
+            } else {
+                // Create new tab
+                const tab = { path, name };
+                openTabs.push(tab);
+                createTabElement(tab);
+                createContentElement(tab);
+                switchTab(path);
+                loadMarkdownFile(path, document.getElementById(`tab-content-${CSS.escape(path)}`));
+            }
+        }
+
+        function createTabElement(tab) {
+            const tabBar = document.getElementById('tabBar');
+            const tabEl = document.createElement('div');
+            tabEl.className = 'tab';
+            tabEl.id = `tab-${CSS.escape(tab.path)}`;
+            tabEl.onclick = () => switchTab(tab.path);
+            
+            tabEl.innerHTML = `
+                <span class="tab-icon">${ICONS.markdown}</span>
+                <span class="tab-title" title="${tab.path}">${tab.name}</span>
+                <span class="tab-close" onclick="closeTab('${CSS.escape(tab.path)}', event)">${ICONS.close}</span>
+            `;
+            
+            tabBar.appendChild(tabEl);
+        }
+
+        function createContentElement(tab) {
+            const wrapper = document.getElementById('markdownWrapper');
+            const contentEl = document.createElement('div');
+            contentEl.className = 'tab-content';
+            contentEl.id = `tab-content-${CSS.escape(tab.path)}`;
+            wrapper.appendChild(contentEl);
+        }
+
+        function switchTab(path) {
+            activeTabPath = path;
+            currentFile = path; // Update global currentFile
+
+            // Update tabs UI
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            const activeTab = document.getElementById(`tab-${CSS.escape(path)}`);
+            if (activeTab) activeTab.classList.add('active');
+
+            // Update content visibility
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            const activeContent = document.getElementById(`tab-content-${CSS.escape(path)}`);
+            if (activeContent) activeContent.classList.add('active');
+            
+            // Hide welcome message if a tab is open
+            const welcomeTab = document.getElementById('welcome-tab');
+            if (welcomeTab) {
+                if (path) {
+                    welcomeTab.classList.remove('active');
+                } else {
+                    welcomeTab.classList.add('active');
+                }
+            }
+
+            // Update sidebar active state
+            document.querySelectorAll('.file-item').forEach(el => el.classList.remove('active'));
+            // Use CSS.escape for the selector because path might contain special chars
+            // But CSS.escape escapes everything, so we need to be careful with quotes
+            // Easier to iterate or use a simpler selector if possible.
+            // Actually, querySelector with attribute value requires escaping quotes.
+            // Let's just iterate to be safe and avoid complex escaping issues for now, 
+            // or use the specific data attribute.
+            const fileItems = document.querySelectorAll('.file-item.markdown');
+            fileItems.forEach(item => {
+                if (item.dataset.path === path) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        function closeTab(path, event) {
+            if (event) event.stopPropagation();
+            
+            const index = openTabs.findIndex(t => t.path === path);
+            if (index === -1) return;
+
+            // Remove from array
+            openTabs.splice(index, 1);
+
+            // Remove DOM elements
+            document.getElementById(`tab-${CSS.escape(path)}`).remove();
+            document.getElementById(`tab-content-${CSS.escape(path)}`).remove();
+
+            // Switch to another tab if closing active tab
+            if (activeTabPath === path) {
+                if (openTabs.length > 0) {
+                    // Switch to the last opened tab or the one before/after
+                    // Let's switch to the last one for simplicity, or the one at same index
+                    const nextTab = openTabs[Math.min(index, openTabs.length - 1)];
+                    switchTab(nextTab.path);
+                } else {
+                    activeTabPath = null;
+                    currentFile = '';
+                    // Show welcome tab
+                    const welcomeTab = document.getElementById('welcome-tab');
+                    if (welcomeTab) welcomeTab.classList.add('active');
+                }
+            }
+        }
+
         // 加载Markdown文件
-        function loadMarkdownFile(filePath) {
-            document.getElementById('markdownContent').innerHTML =
+        function loadMarkdownFile(filePath, container) {
+            if (!container) return;
+            
+            container.innerHTML =
                 `<div class="loading">${TRANSLATIONS['loading']}</div>`;
 
             fetch(`/api/markdown?file=${encodeURIComponent(filePath)}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
-                        document.getElementById('markdownContent').innerHTML =
+                        container.innerHTML =
                             `<div class="error">${TRANSLATIONS['load_error']}${data.error}</div>`;
                         return;
                     }
 
-                    document.getElementById('markdownContent').innerHTML =
+                    container.innerHTML =
                         `<div class="markdown-content">${data.html}</div>`;
 
                     // 处理列表项样式
-                    processListItems();
+                    processListItems(container);
 
                     // 重新渲染MathJax
                     if (window.MathJax) {
-                        MathJax.typesetPromise([document.getElementById('markdownContent')])
+                        MathJax.typesetPromise([container])
                             .then(() => {
                                 console.log(TRANSLATIONS['mathjax_done']);
                                 // 为数学公式添加样式类
-                                addMathStyles();
+                                addMathStyles(container);
                             })
                             .catch((err) => console.log(TRANSLATIONS['mathjax_error'], err));
                     }
 
                     // 处理图片加载错误
-                    const images = document.querySelectorAll('#markdownContent img');
+                    const images = container.querySelectorAll('img');
                     images.forEach(img => {
                         img.onerror = function () {
                             this.style.border = '2px dashed #dc3545';
@@ -227,15 +344,16 @@ SCRIPTS = '''
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    document.getElementById('markdownContent').innerHTML =
+                    container.innerHTML =
                         `<div class="error">${TRANSLATIONS['load_markdown_error']}</div>`;
                 });
         }
 
         // 为数学公式添加样式类
-        function addMathStyles() {
+        function addMathStyles(container) {
+            const root = container || document;
             // 为行内数学公式添加样式
-            const inlineMath = document.querySelectorAll('mjx-container[jax="CHTML"]:not([display="true"])');
+            const inlineMath = root.querySelectorAll('mjx-container[jax="CHTML"]:not([display="true"])');
             inlineMath.forEach(el => {
                 if (!el.classList.contains('math-inline')) {
                     el.classList.add('math-inline');
@@ -243,7 +361,7 @@ SCRIPTS = '''
             });
 
             // 为块级数学公式添加样式
-            const displayMath = document.querySelectorAll('mjx-container[jax="CHTML"][display="true"]');
+            const displayMath = root.querySelectorAll('mjx-container[jax="CHTML"][display="true"]');
             displayMath.forEach(el => {
                 if (!el.parentElement.classList.contains('math-display')) {
                     const wrapper = document.createElement('div');
@@ -255,8 +373,9 @@ SCRIPTS = '''
         }
 
         // 处理列表项样式
-        function processListItems() {
-            const content = document.querySelector('.markdown-content');
+        function processListItems(container) {
+            const root = container || document;
+            const content = root.querySelector('.markdown-content');
             if (!content) return;
 
             // 处理段落中的列表项
