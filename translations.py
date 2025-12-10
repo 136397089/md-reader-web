@@ -21,6 +21,7 @@ TRANSLATIONS = {
         'enter_password': '请输入密码',
         'login_failed': '登录失败',
         'password_error': '密码错误',
+        'remember_me': '30天内免登录',
         
         # Main Page
         'main_title': 'Markdown阅读器',
@@ -114,6 +115,7 @@ TRANSLATIONS = {
         'enter_password': 'Please enter password',
         'login_failed': 'Login failed',
         'password_error': 'Incorrect password',
+        'remember_me': 'Trust this device (30 days)',
         
         # Main Page
         'main_title': 'Markdown Reader',

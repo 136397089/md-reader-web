@@ -200,6 +200,11 @@ LOGIN_TEMPLATE = '''
                        placeholder="{{ t['password_placeholder'] }}" autocomplete="current-password">
             </div>
             
+            <div class="form-group" style="display: flex; align-items: center; margin-bottom: 20px;">
+                <input type="checkbox" id="remember_me" name="remember_me" style="width: auto; margin-right: 10px;">
+                <label for="remember_me" style="margin-bottom: 0; cursor: pointer;">{{ t['remember_me'] }}</label>
+            </div>
+            
             <button type="submit" class="login-btn" id="loginBtn">
                 <span id="btnText">{{ t['login_btn'] }}</span>
             </button>
@@ -257,6 +262,7 @@ LOGIN_TEMPLATE = '''
             e.preventDefault();
             
             const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('remember_me').checked;
             const loginBtn = document.getElementById('loginBtn');
             const btnText = document.getElementById('btnText');
             
@@ -279,7 +285,8 @@ LOGIN_TEMPLATE = '''
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        encrypted_password: encryptedPassword
+                        encrypted_password: encryptedPassword,
+                        remember_me: rememberMe
                     })
                 });
                 

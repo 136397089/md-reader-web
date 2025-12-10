@@ -18,6 +18,11 @@ import mimetypes
 import re
 import argparse
 import sys
+import logging
+from logging.handlers import RotatingFileHandler
+import threading
+import time
+import resource
 from template.main_template import MAIN_TEMPLATE, MATHJAX_CONFIG
 from template.login_template import LOGIN_TEMPLATE
 from template.styles import STYLES
@@ -29,7 +34,104 @@ from translations import TRANSLATIONS
 PASSWORD = 'admin123'  # 默认密码，可修改
 PORT_NUMBER = 5000
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(32)
+
+# 密钥文件路径
+SECRET_KEY_FILE = '.secret_key'
+
+def get_or_create_secret_key():
+    """获取或创建持久化的密钥"""
+    if os.path.exists(SECRET_KEY_FILE):
+        try:
+            with open(SECRET_KEY_FILE, 'rb') as f:
+                return f.read()
+        except Exception as e:
+            print(f"读取密钥文件失败: {e}")
+    
+    # 生成新密钥
+    key = secrets.token_hex(32).encode('utf-8')
+    try:
+        with open(SECRET_KEY_FILE, 'wb') as f:
+            f.write(key)
+    except Exception as e:
+        print(f"保存密钥文件失败: {e}")
+    return key
+
+app.secret_key = get_or_create_secret_key()
+app.permanent_session_lifetime = timedelta(days=30)  # 设置永久会话有效期为30天
+
+# 配置日志
+def setup_logging():
+    # 创建日志格式
+    formatter = logging.Formatter(
+        '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
+    )
+    
+    # 文件处理器 - 10MB, 保留5个备份
+    file_handler = RotatingFileHandler(
+        'app.log', 
+        maxBytes=10*1024*1024, 
+        backupCount=5,
+        encoding='utf-8'
+    )
+    file_handler.setFormatter(formatter)
+    file_handler.setLevel(logging.INFO)
+    
+    # 控制台处理器
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    console_handler.setLevel(logging.INFO)
+    
+    # 获取根日志记录器
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    root_logger.addHandler(file_handler)
+    root_logger.addHandler(console_handler)
+    
+    # 设置Flask日志
+    app.logger.addHandler(file_handler)
+    app.logger.addHandler(console_handler)
+    app.logger.setLevel(logging.INFO)
+
+setup_logging()
+
+# 资源监控线程
+class MonitorThread(threading.Thread):
+    def __init__(self):
+        super().__init__()
+        self.daemon = True
+        self.running = True
+        
+    def run(self):
+        logging.info("资源监控线程已启动")
+        while self.running:
+            try:
+                # 获取内存使用情况 (RSS)
+                usage = resource.getrusage(resource.RUSAGE_SELF)
+                memory_mb = usage.ru_maxrss / 1024  # Linux下单位是KB
+                
+                # 获取当前活跃线程数
+                thread_count = threading.active_count()
+                
+                logging.info(f"系统状态 - 内存: {memory_mb:.2f}MB, 线程数: {thread_count}")
+                
+                # 每60秒记录一次
+                time.sleep(60)
+            except Exception as e:
+                logging.error(f"监控线程异常: {e}")
+                time.sleep(60)
+
+# 请求日志中间件
+@app.before_request
+def before_request():
+    request.start_time = time.time()
+    logging.info(f"开始请求: {request.method} {request.path} - IP: {request.remote_addr}")
+
+@app.after_request
+def after_request(response):
+    if hasattr(request, 'start_time'):
+        duration = time.time() - request.start_time
+        logging.info(f"结束请求: {request.method} {request.path} - Status: {response.status_code} - Duration: {duration:.4f}s")
+    return response
 
 # 配置请求大小和超时
 # app.config['MAX_CONTENT_LENGTH'] = CONFIG['max_file_size']
@@ -146,10 +248,12 @@ def require_auth(f):
             return redirect(url_for('login'))
         
         if session.get('login_time'):
-            login_time = datetime.fromisoformat(session['login_time'])
-            if datetime.now() - login_time > timedelta(seconds=CONFIG['session_timeout']):
-                session.clear()
-                return redirect(url_for('login'))
+            # 如果是记住登录状态，则跳过短时间超时检查
+            if not session.get('remember_me'):
+                login_time = datetime.fromisoformat(session['login_time'])
+                if datetime.now() - login_time > timedelta(seconds=CONFIG['session_timeout']):
+                    session.clear()
+                    return redirect(url_for('login'))
         
         return f(*args, **kwargs)
     decorated_function.__name__ = f.__name__
@@ -290,6 +394,15 @@ def api_login():
         if verify_password(encrypted_password):
             session['authenticated'] = True
             session['login_time'] = datetime.now().isoformat()
+            
+            remember_me = data.get('remember_me', False)
+            if remember_me:
+                session.permanent = True
+                session['remember_me'] = True
+            else:
+                session.permanent = False
+                session['remember_me'] = False
+                
             return jsonify({'success': True})
         else:
             return jsonify({'success': False, 'error': t['password_error']})
@@ -633,6 +746,10 @@ if __name__ == '__main__':
     print("按Ctrl+C停止服务")
 
     try:
+        # 启动监控线程
+        monitor_thread = MonitorThread()
+        monitor_thread.start()
+        
         ssl_context = create_ssl_context()
 
         app.run(
