@@ -58,6 +58,7 @@ def get_or_create_secret_key():
 
 app.secret_key = get_or_create_secret_key()
 app.permanent_session_lifetime = timedelta(days=30)  # 设置永久会话有效期为30天
+app.config['SESSION_COOKIE_NAME'] = 'markdown_reader_session'  # 设置独立的会话Cookie名称，避免与其他服务冲突
 
 # 配置日志
 def setup_logging():
@@ -537,66 +538,56 @@ def get_markdown():
         except IOError as e:
             return jsonify({'error': f"{t['read_failed']}{str(e)}"})
         
-        # 转换为HTML，保护数学公式
-        # 首先保护数学公式，避免被markdown转义
-        math_placeholders = {}
-        placeholder_counter = 0
-
-        # 标准化矩阵换行符：将\\\\替换为\\（在数学公式内部）
-        def normalize_matrix_linebreaks(content):
-            # 在$$...$$块内将\\\\替换为\\
-            def fix_linebreaks_in_math(match):
-                math_content = match.group(1)
-                # 在bmatrix环境内标准化换行符
-                math_content = re.sub(r'\\\\\\\\', r'\\\\', math_content)
-                return f"$${math_content}$$"
-
-            # 处理块级数学公式中的换行符
-            content = re.sub(r'\$\$(.+?)\$\$', fix_linebreaks_in_math, content, flags=re.DOTALL)
-            return content
-
-        # 标准化矩阵换行符
-        content = normalize_matrix_linebreaks(content)
-
-        # 保护块级数学公式 $$...$$
-        def protect_display_math(match):
-            nonlocal placeholder_counter
-            placeholder = f"MATH_DISPLAY_PLACEHOLDER_{placeholder_counter}"
-            math_placeholders[placeholder] = match.group(0)
-            placeholder_counter += 1
-            return placeholder
-
-        # 保护行内数学公式 $...$
-        def protect_inline_math(match):
-            nonlocal placeholder_counter
-            placeholder = f"MATH_INLINE_PLACEHOLDER_{placeholder_counter}"
-            math_placeholders[placeholder] = match.group(0)
-            placeholder_counter += 1
-            return placeholder
-
-        # 使用正则表达式保护数学公式
-        # 块级公式 (优先处理)
-        content = re.sub(r'\$\$(.+?)\$\$', protect_display_math, content, flags=re.DOTALL)
-        # 行内公式
-        content = re.sub(r'(?<!\$)\$(?!\$)([^$\n]+?)\$(?!\$)', protect_inline_math, content)
-
         # 转换Markdown为HTML
+        # 使用自定义扩展处理数学公式，避免代码块中的$被误识别
+        from markdown.extensions import Extension
+        from markdown.inlinepatterns import InlineProcessor
+        from markdown.util import AtomicString
+        import xml.etree.ElementTree as etree
+
+        class MathInlineProcessor(InlineProcessor):
+            def handleMatch(self, m, data):
+                el = etree.Element('span')
+                el.text = AtomicString(f"${m.group(1)}$")
+                el.set('class', 'math-inline')
+                return el, m.start(0), m.end(0)
+
+        class MathBlockProcessor(InlineProcessor):
+            def handleMatch(self, m, data):
+                el = etree.Element('div')
+                el.text = AtomicString(f"$${m.group(1)}$$")
+                el.set('class', 'math-display')
+                return el, m.start(0), m.end(0)
+
+        class MathExtension(Extension):
+            def extendMarkdown(self, md):
+                # 优先级设置：
+                # backtick (代码块) 是 175
+                # escape (转义) 是 180
+                # 我们设置为 < 175，确保代码块先被处理
+                
+                # 块级公式 $$...$$
+                # 使用[\s\S]匹配任意字符包括换行符
+                md.inlinePatterns.register(MathBlockProcessor(r'\$\$([\s\S]+?)\$\$', md), 'math_block', 174)
+                
+                # 行内公式 $...$
+                md.inlinePatterns.register(MathInlineProcessor(r'(?<!\\)\$(?!\$)([\s\S]+?)(?<!\\)\$', md), 'math_inline', 173)
+
         html = markdown.markdown(
             content,
-            extensions=['codehilite', 'tables', 'toc', 'fenced_code', 'extra'],
+            extensions=['codehilite', 'tables', 'toc', 'fenced_code', 'extra', MathExtension()],
             extension_configs={
                 'codehilite': {
                     'css_class': 'highlight'
                 }
             }
         )
-
-        # 恢复数学公式
-        for placeholder, math_formula in math_placeholders.items():
-            html = html.replace(placeholder, math_formula)
         
         # 处理图片链接
         html = process_markdown_images(html, file_path)
+
+
+
         
         return jsonify({
             'html': html,
