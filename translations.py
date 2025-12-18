@@ -93,7 +93,13 @@ TRANSLATIONS = {
         # Language
         'lang_zh': '中文',
         'lang_en': 'English',
-        'switch_lang': 'Switch to English'
+        'switch_lang': 'Switch to English',
+        'edit': '编辑',
+        'save': '保存',
+        'cancel': '取消',
+        'preview': '预览',
+        'save_success': '保存成功',
+        'save_error': '保存失败: ',
     },
     'en': {
         # Login Page
@@ -187,6 +193,12 @@ TRANSLATIONS = {
         # Language
         'lang_zh': '中文',
         'lang_en': 'English',
-        'switch_lang': '切换到中文'
+        'switch_lang': '切换到中文',
+        'edit': 'Edit',
+        'save': 'Save',
+        'cancel': 'Cancel',
+        'preview': 'Preview',
+        'save_success': 'Saved successfully',
+        'save_error': 'Save failed: ',
     }
 }

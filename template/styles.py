@@ -221,7 +221,7 @@ STYLES = '''
             width: 100%;
         }
         
-        .header.hidden {
+        .app-container.header-hidden .header {
             transform: translateY(-100%);
         }
 
@@ -667,9 +667,10 @@ STYLES = '''
         .toggle-header {
             position: fixed;
             top: 0;
-            right: 32px;
+            left: 50%;
+            transform: translateX(-50%);
             background: var(--text-main);
-            color: white;
+            color: var(--bg-body);
             border: none;
             padding: 4px 12px;
             border-radius: 0 0 8px 8px;
@@ -677,13 +678,16 @@ STYLES = '''
             z-index: 100;
             font-size: 0.75rem;
             font-weight: 600;
-            opacity: 0;
+            opacity: 0.8; /* Make it visible by default */
             transition: opacity 0.3s;
         }
-        
-        .header.hidden + .content .toggle-header {
+
+        .toggle-header:hover {
             opacity: 1;
         }
+        
+        /* When header is hidden, maybe move the button or keep it? 
+           It's fixed position, so it stays. */
         
         .back-button {
             display: inline-flex;
@@ -728,5 +732,37 @@ STYLES = '''
             .header {
                 padding: 12px 16px;
             }
+        }
+        
+        /* Editor */
+        .editor-container {
+            display: none;
+            width: 100%;
+            min-height: 500px;
+        }
+        
+        .editor-container.active {
+            display: block;
+        }
+        
+        .markdown-editor {
+            width: 100%;
+            min-height: 500px;
+            padding: 20px;
+            background: var(--bg-surface);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            font-family: var(--font-mono);
+            font-size: 1.0625rem; /* Match markdown-content */
+            line-height: 1.75; /* Match markdown-content */
+            resize: none;
+            outline: none;
+            overflow-y: hidden; /* Auto-resize */
+        }
+        
+        .markdown-editor:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-light);
         }
 '''

@@ -6,6 +6,7 @@ SCRIPTS = '''
         let sidebarVisible = true;
         let openTabs = []; // Array of { path, name }
         let activeTabPath = null;
+        let isEditing = false;
         
         // Icons
         const ICONS = {
@@ -250,6 +251,10 @@ SCRIPTS = '''
                     item.classList.add('active');
                 }
             });
+            
+            // Reset edit mode when switching tabs
+            isEditing = false;
+            updateEditButtonState();
         }
 
         function closeTab(path, event) {
@@ -298,8 +303,28 @@ SCRIPTS = '''
                         return;
                     }
 
-                    container.innerHTML =
-                        `<div class="markdown-content">${data.html}</div>`;
+                    container.innerHTML = `
+                        <div class="markdown-content" id="view-${CSS.escape(filePath)}">${data.html}</div>
+                        <div class="editor-container" id="editor-${CSS.escape(filePath)}">
+                            <textarea class="markdown-editor" spellcheck="false"></textarea>
+                        </div>
+                    `;
+                    
+                    // Set editor content
+                    const textarea = container.querySelector('.markdown-editor');
+                    if(textarea) {
+                        textarea.value = data.raw_content || '';
+                        // Auto resize on input
+                        textarea.addEventListener('input', function() {
+                            this.style.height = 'auto';
+                            this.style.height = (this.scrollHeight) + 'px';
+                        });
+                    }
+                    
+                    // Update button state
+                    if (activeTabPath === filePath) {
+                        updateEditButtonState();
+                    }
 
                     // 处理列表项样式
                     processListItems(container);
@@ -316,37 +341,41 @@ SCRIPTS = '''
                     }
 
                     // 处理图片加载错误
-                    const images = container.querySelectorAll('img');
-                    images.forEach(img => {
-                        img.onerror = function () {
-                            this.style.border = '2px dashed #dc3545';
-                            this.style.padding = '10px';
-                            this.style.backgroundColor = '#f8d7da';
-                            this.style.color = '#721c24';
-                            this.title = TRANSLATIONS['image_load_error'] + this.src;
-                        };
-
-                        // 添加图片点击放大功能
-                        img.onclick = function () {
-                            if (this.style.transform === 'scale(2)') {
-                                this.style.transform = 'scale(1)';
-                                this.style.cursor = 'zoom-in';
-                                this.style.position = 'relative';
-                                this.style.zIndex = '1';
-                            } else {
-                                this.style.transform = 'scale(2)';
-                                this.style.cursor = 'zoom-out';
-                                this.style.position = 'relative';
-                                this.style.zIndex = '1000';
-                            }
-                        };
-                    });
+                    setupImageHandlers(container);
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     container.innerHTML =
                         `<div class="error">${TRANSLATIONS['load_markdown_error']}</div>`;
                 });
+        }
+        
+        function setupImageHandlers(container) {
+            const images = container.querySelectorAll('img');
+            images.forEach(img => {
+                img.onerror = function () {
+                    this.style.border = '2px dashed #dc3545';
+                    this.style.padding = '10px';
+                    this.style.backgroundColor = '#f8d7da';
+                    this.style.color = '#721c24';
+                    this.title = TRANSLATIONS['image_load_error'] + this.src;
+                };
+
+                // 添加图片点击放大功能
+                img.onclick = function () {
+                    if (this.style.transform === 'scale(2)') {
+                        this.style.transform = 'scale(1)';
+                        this.style.cursor = 'zoom-in';
+                        this.style.position = 'relative';
+                        this.style.zIndex = '1';
+                    } else {
+                        this.style.transform = 'scale(2)';
+                        this.style.cursor = 'zoom-out';
+                        this.style.position = 'relative';
+                        this.style.zIndex = '1000';
+                    }
+                };
+            });
         }
 
         // 为数学公式添加样式类
@@ -448,6 +477,136 @@ SCRIPTS = '''
                 e.preventDefault();
                 toggleHeader();
             }
+            
+            // Save shortcut
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                if (isEditing) {
+                    saveFile();
+                }
+            }
         });
+
+        function toggleEditMode() {
+            if (!activeTabPath) return;
+            
+            const container = document.getElementById(`tab-content-${CSS.escape(activeTabPath)}`);
+            if (!container) return;
+            
+            const viewEl = container.querySelector('.markdown-content');
+            const editorEl = container.querySelector('.editor-container');
+            const textarea = editorEl.querySelector('textarea');
+            
+            if (!isEditing) {
+                // Switch to Edit Mode
+                isEditing = true;
+                viewEl.style.display = 'none';
+                editorEl.classList.add('active');
+                
+                // Auto resize when entering edit mode
+                textarea.style.height = 'auto';
+                textarea.style.height = (textarea.scrollHeight) + 'px';
+                
+                textarea.focus();
+                updateEditButtonState();
+            } else {
+                // Switch to Preview Mode (View Mode)
+                const content = textarea.value;
+                
+                viewEl.innerHTML = `<div class="loading">${TRANSLATIONS['loading']}</div>`;
+                viewEl.style.display = 'block';
+                editorEl.classList.remove('active');
+                
+                fetch('/api/preview', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        content: content,
+                        file_path: activeTabPath
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        viewEl.innerHTML = `<div class="error">${data.error}</div>`;
+                    } else {
+                        viewEl.innerHTML = data.html;
+                        processListItems(container);
+                        if (window.MathJax) {
+                            MathJax.typesetPromise([viewEl]).then(() => addMathStyles(viewEl));
+                        }
+                        setupImageHandlers(viewEl);
+                    }
+                })
+                .catch(err => {
+                    viewEl.innerHTML = `<div class="error">${err}</div>`;
+                });
+                
+                isEditing = false;
+                updateEditButtonState();
+            }
+        }
+        
+        function saveFile() {
+            if (!activeTabPath) return;
+            
+            const container = document.getElementById(`tab-content-${CSS.escape(activeTabPath)}`);
+            if (!container) return;
+            
+            const textarea = container.querySelector('textarea');
+            const content = textarea.value;
+            
+            fetch('/api/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    file: activeTabPath,
+                    content: content
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(TRANSLATIONS['save_success']);
+                } else {
+                    alert(TRANSLATIONS['save_error'] + data.error);
+                }
+            })
+            .catch(err => {
+                alert(TRANSLATIONS['save_error'] + err);
+            });
+        }
+        
+        function updateEditButtonState() {
+            const editBtn = document.getElementById('editBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            
+            if (!activeTabPath) {
+                editBtn.style.display = 'none';
+                saveBtn.style.display = 'none';
+                return;
+            }
+            
+            if (isEditing) {
+                editBtn.style.display = 'flex';
+                editBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1.25rem; height: 1.25rem;">
+  <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+  <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z" clip-rule="evenodd" />
+</svg>`;
+                editBtn.title = TRANSLATIONS['preview'];
+                saveBtn.style.display = 'flex';
+            } else {
+                editBtn.style.display = 'flex';
+                editBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1.25rem; height: 1.25rem;">
+                              <path d="M21.731 2.269a2.625 2.625 0 00-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 000-3.712zM19.513 8.199l-3.712-3.712-12.15 12.15a5.25 5.25 0 00-1.32 2.214l-.8 2.685a.75.75 0 00.933.933l2.685-.8a5.25 5.25 0 002.214-1.32L19.513 8.2z" />
+                            </svg>`;
+                editBtn.title = TRANSLATIONS['edit'];
+                saveBtn.style.display = 'none';
+            }
+        }
 
 '''

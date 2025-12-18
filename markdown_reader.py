@@ -591,11 +591,70 @@ def get_markdown():
         
         return jsonify({
             'html': html,
-            'file_path': file_path
+            'file_path': file_path,
+            'raw_content': content
         })
         
     except Exception as e:
         return jsonify({'error': f"{t['read_file_failed']}{str(e)}"})
+
+@app.route('/api/preview', methods=['POST'])
+@require_auth
+def preview_markdown():
+    """预览Markdown内容API"""
+    lang = session.get('lang', 'zh')
+    t = TRANSLATIONS[lang]
+    try:
+        data = request.get_json()
+        content = data.get('content', '')
+        file_path = data.get('file_path', '') # Optional, for image resolution
+        
+        # 转换Markdown为HTML
+        # 使用自定义扩展处理数学公式
+        from markdown.extensions import Extension
+        from markdown.inlinepatterns import InlineProcessor
+        from markdown.util import AtomicString
+        import xml.etree.ElementTree as etree
+
+        class MathInlineProcessor(InlineProcessor):
+            def handleMatch(self, m, data):
+                el = etree.Element('span')
+                el.text = AtomicString(f"${m.group(1)}$")
+                el.set('class', 'math-inline')
+                return el, m.start(0), m.end(0)
+
+        class MathBlockProcessor(InlineProcessor):
+            def handleMatch(self, m, data):
+                el = etree.Element('div')
+                el.text = AtomicString(f"$${m.group(1)}$$")
+                el.set('class', 'math-display')
+                return el, m.start(0), m.end(0)
+
+        class MathExtension(Extension):
+            def extendMarkdown(self, md):
+                md.inlinePatterns.register(MathBlockProcessor(r'\$\$([\s\S]+?)\$\$', md), 'math_block', 174)
+                md.inlinePatterns.register(MathInlineProcessor(r'(?<!\\)\$(?!\$)([\s\S]+?)(?<!\\)\$', md), 'math_inline', 173)
+
+        html = markdown.markdown(
+            content,
+            extensions=['codehilite', 'tables', 'toc', 'fenced_code', 'extra', MathExtension()],
+            extension_configs={
+                'codehilite': {
+                    'css_class': 'highlight'
+                }
+            }
+        )
+        
+        # 处理图片链接
+        if file_path:
+             html = process_markdown_images(html, file_path)
+        
+        return jsonify({
+            'html': html
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f"{t['server_err_prefix']}{str(e)}"})
 
 @app.route('/api/image')
 @require_auth

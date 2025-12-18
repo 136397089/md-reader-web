@@ -169,6 +169,16 @@ MAIN_TEMPLATE = '''
                         <h1>{{ t['main_title'] }}</h1>
                     </div>
                     <div class="header-right">
+                        <button class="btn-icon" onclick="toggleEditMode()" id="editBtn" title="{{ t['edit'] }}" style="display: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1.25rem; height: 1.25rem;">
+                              <path d="M21.731 2.269a2.625 2.625 0 00-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 000-3.712zM19.513 8.199l-3.712-3.712-12.15 12.15a5.25 5.25 0 00-1.32 2.214l-.8 2.685a.75.75 0 00.933.933l2.685-.8a5.25 5.25 0 002.214-1.32L19.513 8.2z" />
+                            </svg>
+                        </button>
+                        <button class="btn-icon" onclick="saveFile()" id="saveBtn" title="{{ t['save'] }}" style="display: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1.25rem; height: 1.25rem;">
+                              <path fill-rule="evenodd" d="M19.5 21a3 3 0 003-3V9a3 3 0 00-3-3h-5.379a.75.75 0 01-.53-.22L11.47 3.66A2.25 2.25 0 009.879 3H4.5a3 3 0 00-3 3v12a3 3 0 003 3h15zM9 12.75a.75.75 0 000 1.5h6a.75.75 0 000-1.5H9z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
                         <button class="btn-icon" onclick="toggleTheme()" id="themeToggle" title="Toggle Theme">
                             <!-- Icon will be set by JS -->
                         </button>
