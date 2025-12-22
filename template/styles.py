@@ -745,8 +745,16 @@ STYLES = '''
             display: block;
         }
         
+        /* Bold Text Styling */
+        .markdown-content strong,
+        .markdown-content b {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
         .markdown-editor {
             width: 100%;
+            height: 100%; /* Fill container */
             min-height: 500px;
             padding: 20px;
             background: var(--bg-surface);
@@ -758,7 +766,7 @@ STYLES = '''
             line-height: 1.75; /* Match markdown-content */
             resize: none;
             outline: none;
-            overflow-y: hidden; /* Auto-resize */
+            overflow-y: auto; /* Enable scrolling */
         }
         
         .markdown-editor:focus {

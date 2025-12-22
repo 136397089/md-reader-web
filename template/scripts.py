@@ -314,11 +314,11 @@ SCRIPTS = '''
                     const textarea = container.querySelector('.markdown-editor');
                     if(textarea) {
                         textarea.value = data.raw_content || '';
-                        // Auto resize on input
-                        textarea.addEventListener('input', function() {
-                            this.style.height = 'auto';
-                            this.style.height = (this.scrollHeight) + 'px';
-                        });
+                        // Auto resize on input - REMOVED for fixed height scrollable editor
+                        // textarea.addEventListener('input', function() {
+                        //     this.style.height = 'auto';
+                        //     this.style.height = (this.scrollHeight) + 'px';
+                        // });
                     }
                     
                     // Update button state
@@ -451,15 +451,16 @@ SCRIPTS = '''
         let headerVisible = true;
 
         function toggleHeader() {
-            const header = document.querySelector('.header');
+            // Toggle class on app-container instead of header directly
+            const appContainer = document.querySelector('.app-container');
             const toggleBtn = document.getElementById('toggleHeaderBtn');
             headerVisible = !headerVisible;
 
             if (headerVisible) {
-                header.classList.remove('hidden');
+                appContainer.classList.remove('header-hidden');
                 toggleBtn.textContent = TRANSLATIONS['hide_header'];
             } else {
-                header.classList.add('hidden');
+                appContainer.classList.add('header-hidden');
                 toggleBtn.textContent = TRANSLATIONS['show_header'];
             }
         }
@@ -503,9 +504,9 @@ SCRIPTS = '''
                 viewEl.style.display = 'none';
                 editorEl.classList.add('active');
                 
-                // Auto resize when entering edit mode
-                textarea.style.height = 'auto';
-                textarea.style.height = (textarea.scrollHeight) + 'px';
+                // Auto resize when entering edit mode - REMOVED
+                // textarea.style.height = 'auto';
+                // textarea.style.height = (textarea.scrollHeight) + 'px';
                 
                 textarea.focus();
                 updateEditButtonState();
