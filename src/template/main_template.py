@@ -65,7 +65,6 @@ WELCOME_CONTENT = '''
                         <h2>{{ t['welcome_title'] }}</h2>
                         <p>{{ t['welcome_msg1'] }}</p>
                         <p>{{ t['welcome_msg2'] }}</p>
-                        <p>{{ t['welcome_https'] }}</p>
                         <p>{{ t['welcome_latex'] }}</p>
                         <p>{{ t['welcome_images'] }}</p>
 

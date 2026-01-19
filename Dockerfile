@@ -17,6 +17,6 @@ RUN pip install --no-cache-dir \
 EXPOSE 5000
 
 # 启动命令（可根据需要修改）
-CMD ["python", "-c", "print('Container is ready!')"]
+CMD ["python", "src/markdown_reader.py"]
 
 

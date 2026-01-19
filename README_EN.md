@@ -7,7 +7,6 @@ Host markdown documents on a server and read them anytime, anywhere via a browse
 ## ✨ Features
 
 ### 🔒 Security Features
-- **HTTPS Encrypted Transmission** - Use SSL/TLS to encrypt all network communications
 - **RSA-2048 Asymmetric Encryption** - Password transmission using RSA encryption for security
 - **Path Traversal Protection** - Prevent directory traversal attacks, ensure filesystem security
 - **Session Management** - Support session timeout and automatic logout
@@ -89,8 +88,8 @@ docker compose down
 ## 🎯 Usage
 
 1. **Start Service**
-   - Direct run: visit `https://localhost:5000`
-   - Docker: visit `https://localhost:6100`
+   - Direct run: visit `http://localhost:5000`
+   - Docker: visit `http://localhost:6100`
 
 2. **Login System**
    - Default password: `grant91`
@@ -147,7 +146,6 @@ $$
 
 ### Server Configuration
 - **Port**: 5000 (modifiable)
-- **SSL**: Auto-generate self-signed certificates
 - **Session timeout**: 10000 seconds
 - **Max file size**: 50MB
 - **Target Folder**: Specify via `--target_folder` at startup
@@ -171,18 +169,15 @@ markdown_reader/
 ├── Dockerfile            # Docker image configuration
 ├── pyproject.toml        # Python project configuration
 ├── run.sh               # Startup script
-├── server.crt           # SSL certificate (auto-generated)
-├── server.key           # SSL private key (auto-generated)
 └── .backups/            # Backup folder (auto-created)
 ```
 
 ## ⚠️ Important Notes
 
-1. **SSL Certificate**: Uses self-signed certificates, browsers will show security warnings, choose "Continue to site"
-2. **Password Security**: Recommend changing default password and regular updates
-3. **File Permissions**: Ensure Python has read/write permissions for files
-4. **Port Usage**: Ensure port 5000 (or custom port) is not occupied by other programs
-5. **Network Access**: 0.0.0.0 binding allows external access, pay attention to security
+1. **Password Security**: Recommend changing default password and regular updates
+2. **File Permissions**: Ensure Python has read/write permissions for files
+3. **Port Usage**: Ensure port 5000 (or custom port) is not occupied by other programs
+4. **Network Access**: 0.0.0.0 binding allows external access, pay attention to security
 
 ## 🤝 Contributing
 

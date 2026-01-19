@@ -213,7 +213,6 @@ LOGIN_TEMPLATE = '''
         <div class="security-info">
             <h4>{{ t['security_info_title'] }}</h4>
             <p>{{ t['security_rsa'] }}</p>
-            <p>{{ t['security_https'] }}</p>
             <p>{{ t['security_session'] }}</p>
             <p>{{ t['security_images'] }}</p>
             <p>{{ t['default_password'] }}</p>
