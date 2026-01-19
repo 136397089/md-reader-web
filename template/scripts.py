@@ -454,13 +454,18 @@ SCRIPTS = '''
             // Toggle class on app-container instead of header directly
             const appContainer = document.querySelector('.app-container');
             const toggleBtn = document.getElementById('toggleHeaderBtn');
+            const header = document.querySelector('.header');
+            
             headerVisible = !headerVisible;
 
             if (headerVisible) {
                 appContainer.classList.remove('header-hidden');
+                header.style.marginBottom = '0px';
                 toggleBtn.textContent = TRANSLATIONS['hide_header'];
             } else {
                 appContainer.classList.add('header-hidden');
+                const height = header.offsetHeight;
+                header.style.marginBottom = `-${height}px`;
                 toggleBtn.textContent = TRANSLATIONS['show_header'];
             }
         }

@@ -210,7 +210,7 @@ STYLES = '''
             position: sticky;
             top: 0;
             z-index: 10;
-            transition: transform 0.3s ease;
+            transition: margin-bottom 0.3s ease, transform 0.3s ease;
         }
 
         .header-top {
