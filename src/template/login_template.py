@@ -224,7 +224,34 @@ LOGIN_TEMPLATE = '''
         const TRANSLATIONS = {{ translations_json|safe }};
         console.log('Translations loaded:', TRANSLATIONS);
         
+        // Check for Web Crypto API support
+        if (!window.crypto || !window.crypto.subtle) {
+            console.warn("Web Crypto API is not available! Switching to Insecure (Base64) Mode.");
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'error';
+            warningDiv.style.backgroundColor = '#fff3cd';
+            warningDiv.style.color = '#856404';
+            warningDiv.style.borderColor = '#ffeeba';
+            warningDiv.style.fontWeight = 'bold';
+            warningDiv.innerHTML = "Warning: Insecure Connection.<br>Password will be sent without encryption.";
+            const form = document.getElementById('loginForm');
+            form.insertBefore(warningDiv, form.firstChild);
+            
+            // Do NOT disable the button, just indicate insecure mode
+            document.getElementById('btnText').textContent = "Login (Insecure)";
+        } else {
+             console.log("Web Crypto API is available.");
+        }
+        
         async function encryptPassword(password) {
+            console.log("Starting password encryption...");
+            
+            // Fallback for non-secure contexts
+            if (!window.crypto || !window.crypto.subtle) {
+                console.log("Web Crypto unavailable. Using Base64 fallback.");
+                return btoa(password);
+            }
+
             try {
                 const keyData = PUBLIC_KEY.replace(/-----BEGIN PUBLIC KEY-----/, '')
                                         .replace(/-----END PUBLIC KEY-----/, '')
@@ -250,15 +277,18 @@ LOGIN_TEMPLATE = '''
                     encodedPassword
                 );
                 
+                console.log("Password encrypted successfully.");
                 return btoa(String.fromCharCode(...new Uint8Array(encrypted)));
             } catch (error) {
                 console.error('加密失败:', error);
-                throw new Error(TRANSLATIONS['encryption_failed']);
+                // Fallback on error too? Maybe safer to just throw if we expected it to work
+                throw new Error(TRANSLATIONS['encryption_failed'] + ": " + error.message);
             }
         }
         
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            console.log("Login form submitted.");
             
             const password = document.getElementById('password').value;
             const rememberMe = document.getElementById('remember_me').checked;
@@ -277,6 +307,7 @@ LOGIN_TEMPLATE = '''
                 const encryptedPassword = await encryptPassword(password);
                 
                 btnText.textContent = TRANSLATIONS['logging_in'];
+                console.log("Sending login request...");
                 
                 const response = await fetch('/api/login', {
                     method: 'POST',
@@ -289,7 +320,9 @@ LOGIN_TEMPLATE = '''
                     })
                 });
                 
+                console.log("Response received:", response.status);
                 const result = await response.json();
+                console.log("Result:", result);
                 
                 if (result.success) {
                     window.location.href = '/';

@@ -1,6 +1,6 @@
 # JavaScript功能代码
 # JavaScript功能代码
-SCRIPTS = '''
+SCRIPTS  = '''
         let currentPath = '';
         let currentFile = '';
         let sidebarVisible = true;
@@ -162,7 +162,7 @@ SCRIPTS = '''
                 .catch(error => {
                     console.error('Error:', error);
                     document.getElementById('fileList').innerHTML =
-                        `<li class="error">${TRANSLATIONS['load_file_list_error']}</li>`;
+                        `<li class="error">${TRANSLATIONS['load_file_list_error']}<br><small style="font-size:0.8em;opacity:0.8">${error}</small></li>`;
                 });
         }
 

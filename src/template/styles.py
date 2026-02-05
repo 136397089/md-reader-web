@@ -1,5 +1,5 @@
 # CSS样式模板
-STYLES = '''
+STYLES =  '''
         :root {
             /* Color Palette - Modern Slate & Indigo Theme */
             --bg-body: #f8fafc;
@@ -36,25 +36,25 @@ STYLES = '''
         }
 
         [data-theme="dark"] {
-            --bg-body: #0f172a; /* Slate 900 */
-            --bg-surface: #1e293b; /* Slate 800 */
-            --bg-sidebar: #1e293b;
-            --bg-header: rgba(30, 41, 59, 0.9); /* Slate 800 with opacity */
+            --bg-body: #000000; /* Pure Black */
+            --bg-surface: #000000; /* Pure Black */
+            --bg-sidebar: #000000;
+            --bg-header: rgba(0, 0, 0, 0.9); /* Black with opacity */
             
-            --text-main: #f1f5f9; /* Slate 100 */
-            --text-muted: #94a3b8; /* Slate 400 */
-            --text-light: #64748b; /* Slate 500 */
+            --text-main: #ffffff; /* Pure White */
+            --text-muted: #cdcdcd; /* Light Gray */
+            --text-light: #a0a0a0; /* Gray */
             
             --primary: #818cf8; /* Indigo 400 */
             --primary-hover: #6366f1; /* Indigo 500 */
             --primary-light: rgba(99, 102, 241, 0.15);
             
-            --border-color: #334155; /* Slate 700 */
-            --border-hover: #475569; /* Slate 600 */
+            --border-color: #333333; /* Dark Gray for visibility */
+            --border-hover: #555555; /* Lighter Gray */
             
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+            --shadow-sm: 0 1px 2px 0 rgb(255 255 255 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(255 255 255 / 0.1), 0 2px 4px -2px rgb(255 255 255 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(255 255 255 / 0.1), 0 4px 6px -4px rgb(255 255 255 / 0.1);
         }
 
         * {

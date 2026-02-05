@@ -170,6 +170,7 @@ def api_login():
     try:
         data = request.get_json()
         encrypted_password = data.get('encrypted_password')
+        current_app.logger.info(f"Login attempt received. Encrypted Blob Length: {len(encrypted_password) if encrypted_password else 0}")
         
         if not encrypted_password:
             return jsonify({'success': False, 'error': t['missing_password']})

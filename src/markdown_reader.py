@@ -60,8 +60,11 @@ if __name__ == '__main__':
         print(f"请先安装所需的包: pip install {' '.join(missing_packages)}")
         exit(1)
 
+
+
     print("🔐 安全Markdown阅读器启动中...")
     print("📊 功能特性:")
+    print("  • HTTP传输")
     print("  • RSA-2048非对称加密密码验证")
     print("  • LaTeX数学公式支持 (MathJax)")
     print("  • 本地图片显示支持")
@@ -74,6 +77,8 @@ if __name__ == '__main__':
     print("🌐 访问地址:")
     print(f"  • HTTP: http://localhost:{PORT_NUMBER}")
     print(f"  • 默认密码: {PASSWORD}")
+    print("")
+
     print("")
     print("📐 数学公式语法:")
     print("  • 行内公式: $E = mc^2$")
