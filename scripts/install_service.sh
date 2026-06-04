@@ -7,15 +7,66 @@ SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPTS_DIR")"
 SERVICE_NAME="markdown-reader"
 SERVICE_FILE="$HOME/.config/systemd/user/${SERVICE_NAME}.service"
-DATA_DIR="$(dirname "$PROJECT_DIR")"  # /home/he/code/user_system_tools
 
 UV_BIN="$HOME/.local/bin/uv"
 PYTHON_SCRIPT="$PROJECT_DIR/src/markdown_reader.py"
+
+# ── 默认值 ────────────────────────────────────────────────────────────────────
+PORT=5000
+TARGET_DIR="$(dirname "$PROJECT_DIR")"  # 默认: /home/he/code/user_system_tools
 
 # ── 颜色输出 ──────────────────────────────────────────────────────────────────
 green()  { printf '\033[0;32m%s\033[0m\n' "$*"; }
 yellow() { printf '\033[0;33m%s\033[0m\n' "$*"; }
 red()    { printf '\033[0;31m%s\033[0m\n' "$*"; }
+
+usage() {
+    cat <<USAGE
+用法: $(basename "$0") [选项]
+
+选项:
+  -p, --port PORT        服务监听端口 (默认: 5000)
+  -t, --target DIR       Markdown 文件目标路径 (默认: $(dirname "$PROJECT_DIR"))
+  -h, --help             显示帮助信息
+
+示例:
+  $(basename "$0")
+  $(basename "$0") --port 8080
+  $(basename "$0") --port 8080 --target /srv/docs
+USAGE
+}
+
+# ── 解析参数 ──────────────────────────────────────────────────────────────────
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -p|--port)
+            PORT="${2:?'--port 需要一个值'}"
+            shift 2
+            ;;
+        -t|--target)
+            TARGET_DIR="${2:?'--target 需要一个值'}"
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *)
+            red "未知参数: $1"
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+# 端口范围校验
+if ! [[ "$PORT" =~ ^[0-9]+$ ]] || (( PORT < 1 || PORT > 65535 )); then
+    red "错误: 端口必须是 1-65535 之间的整数，当前值: $PORT"
+    exit 1
+fi
+
+# 目标路径规范化为绝对路径
+TARGET_DIR="$(realpath -m "$TARGET_DIR")"
 
 # ── 前置检查 ──────────────────────────────────────────────────────────────────
 if [[ ! -x "$UV_BIN" ]]; then
@@ -52,7 +103,7 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=${PROJECT_DIR}
-ExecStart=${UV_BIN} run python ${PYTHON_SCRIPT} --target_folder ${DATA_DIR}
+ExecStart=${UV_BIN} run python ${PYTHON_SCRIPT} --target_folder ${TARGET_DIR} --port ${PORT}
 Restart=on-failure
 RestartSec=5
 StandardOutput=journal
@@ -79,7 +130,9 @@ sleep 1
 if systemctl --user is-active --quiet "${SERVICE_NAME}"; then
     green ""
     green "✓ 服务已成功启动！"
-    green "  访问地址: http://localhost:5000"
+    green "  监听端口: ${PORT}"
+    green "  目标路径: ${TARGET_DIR}"
+    green "  访问地址: http://localhost:${PORT}"
     green ""
     green "常用命令:"
     green "  状态: systemctl --user status ${SERVICE_NAME}"
