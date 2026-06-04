@@ -4,3 +4,4 @@ server.*
 
 .vscode
 .secret_key
+.rsa_private_key.pem

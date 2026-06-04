@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 # config.py
- 
+
+import os
+
 PASSWORD = 'grant91'  # 默认密码，可修改
 PORT_NUMBER = 5000
-SECRET_KEY_FILE = '.secret_key'
-RSA_PRIVATE_KEY_FILE = '.rsa_private_key.pem'
-SSL_CERT_FILE = '.cert.pem'
-SSL_KEY_FILE = '.key.pem'
+
+_SRC_DIR = os.path.dirname(os.path.abspath(__file__))
+SECRET_KEY_FILE = os.path.join(_SRC_DIR, '.secret_key')
+RSA_PRIVATE_KEY_FILE = os.path.join(_SRC_DIR, '.rsa_private_key.pem')
+SSL_CERT_FILE = os.path.join(_SRC_DIR, '.cert.pem')
+SSL_KEY_FILE = os.path.join(_SRC_DIR, '.key.pem')
 
 CONFIG = {
     'password_hash': None,
