@@ -31,8 +31,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='安全Markdown阅读器')
     parser.add_argument('--target_folder', nargs='?', default=os.getcwd(),
                        help='目标文件夹路径 (默认: 当前目录)')
+    parser.add_argument('--port', type=int, default=PORT_NUMBER,
+                       help=f'服务监听端口 (默认: {PORT_NUMBER})')
 
     args = parser.parse_args()
+    port = args.port
 
     # 验证目标文件夹存在
     target_folder = os.path.abspath(args.target_folder)
@@ -75,7 +78,7 @@ if __name__ == '__main__':
     print(f"📂 目标目录: {target_folder}")
     print("")
     print("🌐 访问地址:")
-    print(f"  • HTTP: http://localhost:{PORT_NUMBER}")
+    print(f"  • HTTP: http://localhost:{port}")
     print(f"  • 默认密码: {PASSWORD}")
     print("")
 
@@ -100,7 +103,7 @@ if __name__ == '__main__':
 
         app.run(
             host='0.0.0.0',
-            port=PORT_NUMBER,
+            port=port,
             debug=False,
             threaded=True,  # 启用多线程
             request_handler=None  # 使用默认的Werkzeug服务器
