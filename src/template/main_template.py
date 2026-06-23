@@ -55,8 +55,8 @@ MATHJAX_CONFIG = '''
         };
     </script>
 
-    <!-- 加载MathJax -->
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- 加载MathJax（国内 CDN 镜像，避免 jsdelivr 跨境访问慢） -->
+    <script id="MathJax-script" async src="https://cdn.bootcdn.net/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
 '''
 
 # 欢迎信息内容
@@ -115,14 +115,7 @@ MAIN_TEMPLATE = '''
     <!-- MathJax配置 -->
     {{ mathjax_config|safe }}
 
-    <style>
-{{ styles|safe }}
-    </style>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/app.css?v={{ asset_version }}">
 </head>
 
 <body>
@@ -212,9 +205,10 @@ MAIN_TEMPLATE = '''
     </div>
 
     <script>
+        // 翻译字典，必须在 app.js 之前定义（app.js 引用此全局变量）
         const TRANSLATIONS = {{ translations_json|safe }};
-{{ scripts|safe }}
     </script>
+    <script defer src="/static/app.js?v={{ asset_version }}"></script>
 </body>
 
 </html>

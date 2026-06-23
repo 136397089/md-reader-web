@@ -70,10 +70,12 @@ SCRIPTS  = '''
         }
 
         // 页面加载时获取文件列表
-        window.onload = function () {
+        // 用 DOMContentLoaded 而非 onload：不必等 Google Fonts/MathJax 等资源
+        // 加载完成即可发起文件列表请求，显著缩短首屏可见时间
+        document.addEventListener('DOMContentLoaded', function () {
             initTheme();
             loadFileList('');
-        };
+        });
 
         // 退出登录
         function logout() {

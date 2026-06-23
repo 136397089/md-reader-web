@@ -5,6 +5,7 @@ from flask import Blueprint, render_template_string, request, jsonify, session, 
 import os
 import time
 import json
+import hashlib
 import mimetypes
 from datetime import datetime, timedelta
 import markdown
@@ -16,8 +17,24 @@ from markdown_services import process_markdown_images, MathExtension
 from translations import TRANSLATIONS
 from template.main_template import MAIN_TEMPLATE, MATHJAX_CONFIG
 from template.login_template import LOGIN_TEMPLATE
-from template.styles import STYLES
-from template.scripts import SCRIPTS
+
+
+def _compute_asset_version():
+    """基于 app.css/app.js 内容计算版本指纹，内容变更即自动失效浏览器缓存。"""
+    static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+    h = hashlib.md5()
+    for name in ('app.css', 'app.js'):
+        path = os.path.join(static_dir, name)
+        try:
+            with open(path, 'rb') as f:
+                h.update(f.read())
+        except OSError:
+            pass
+    return h.hexdigest()[:8]
+
+
+# 静态资源版本号（CSS/JS 外链的 ?v= 参数）
+ASSET_VERSION = _compute_asset_version()
 
 bp = Blueprint('main', __name__)
 
@@ -46,11 +63,13 @@ def before_request():
     request.start_time = time.time()
     current_app.logger.info(f"开始请求: {request.method} {request.path} - IP: {request.remote_addr}")
 
-@bp.after_request
-def after_request(response):
-    if hasattr(request, 'start_time'):
-        duration = time.time() - request.start_time
-        current_app.logger.info(f"结束请求: {request.method} {request.path} - Status: {response.status_code} - Duration: {duration:.4f}s")
+@bp.after_app_request
+def set_static_cache(response):
+    """app 级钩子：对所有请求生效。
+    静态资源（/static/）启用长期强缓存，文件名带版本号 query 参数，
+    改版后版本号变化即可绕过缓存。"""
+    if request.path.startswith('/static/'):
+        response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
     return response
 
 # 全局异常处理器
@@ -211,15 +230,14 @@ def index():
     
     # 将翻译字典转换为JSON字符串传递给前端
     translations_json = json.dumps(t)
-    
+
     return render_template_string(
         MAIN_TEMPLATE,
         t=t,
         lang=lang,
         translations_json=translations_json,
         mathjax_config=MATHJAX_CONFIG,
-        styles=STYLES,
-        scripts=SCRIPTS
+        asset_version=ASSET_VERSION
     )
 
 @bp.route('/api/files')

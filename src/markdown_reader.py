@@ -14,7 +14,12 @@ from utils import get_or_create_secret_key, setup_logging
 from monitor import MonitorThread
 from routes import bp
 
-app = Flask(__name__)
+# 静态资源目录：固定指向 src/static 的绝对路径，
+# 不受运行时 os.chdir(target_folder) 切换工作目录的影响
+_SRC_DIR = os.path.dirname(os.path.abspath(__file__))
+_STATIC_DIR = os.path.join(_SRC_DIR, 'static')
+
+app = Flask(__name__, static_folder=_STATIC_DIR, static_url_path='/static')
 
 # Config
 app.secret_key = get_or_create_secret_key()
