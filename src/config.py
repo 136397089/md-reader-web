@@ -9,8 +9,6 @@ PORT_NUMBER = 5000
 _SRC_DIR = os.path.dirname(os.path.abspath(__file__))
 SECRET_KEY_FILE = os.path.join(_SRC_DIR, '.secret_key')
 RSA_PRIVATE_KEY_FILE = os.path.join(_SRC_DIR, '.rsa_private_key.pem')
-SSL_CERT_FILE = os.path.join(_SRC_DIR, '.cert.pem')
-SSL_KEY_FILE = os.path.join(_SRC_DIR, '.key.pem')
 
 CONFIG = {
     'password_hash': None,

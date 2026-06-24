@@ -6,73 +6,12 @@ import secrets
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.backends import default_backend
-from cryptography import x509
-from cryptography.x509.oid import NameOID
 import datetime
 import base64
 import logging
 from logging.handlers import RotatingFileHandler
 
-from config import SECRET_KEY_FILE, PASSWORD, RSA_PRIVATE_KEY_FILE, SSL_CERT_FILE, SSL_KEY_FILE
-
-def get_or_create_ssl_cert():
-    """获取或创建自签名SSL证书"""
-    if os.path.exists(SSL_CERT_FILE) and os.path.exists(SSL_KEY_FILE):
-        return SSL_CERT_FILE, SSL_KEY_FILE
-    
-    print("Generating self-signed SSL certificate...")
-    logging.info("Generating self-signed SSL certificate...")
-    
-    # Generate key
-    key = rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=2048,
-        backend=default_backend()
-    )
-    
-    # Generate certificate
-    subject = issuer = x509.Name([
-        x509.NameAttribute(NameOID.COUNTRY_NAME, u"CN"),
-        x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, u"State"),
-        x509.NameAttribute(NameOID.LOCALITY_NAME, u"City"),
-        x509.NameAttribute(NameOID.ORGANIZATION_NAME, u"MarkdownReader"),
-        x509.NameAttribute(NameOID.COMMON_NAME, u"localhost"),
-    ])
-    
-    cert = x509.CertificateBuilder().subject_name(
-        subject
-    ).issuer_name(
-        issuer
-    ).public_key(
-        key.public_key()
-    ).serial_number(
-        x509.random_serial_number()
-    ).not_valid_before(
-        datetime.datetime.utcnow()
-    ).not_valid_after(
-        # Valid for 10 years
-        datetime.datetime.utcnow() + datetime.timedelta(days=3650)
-    ).add_extension(
-        x509.SubjectAlternativeName([x509.DNSName(u"localhost")]),
-        critical=False,
-    ).sign(key, hashes.SHA256(), default_backend())
-    
-    # Write key
-    with open(SSL_KEY_FILE, "wb") as f:
-        f.write(key.private_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.TraditionalOpenSSL,
-            encryption_algorithm=serialization.NoEncryption(),
-        ))
-        
-    # Write cert
-    with open(SSL_CERT_FILE, "wb") as f:
-        f.write(cert.public_bytes(serialization.Encoding.PEM))
-        
-    print(f"SSL Certificate saved to {SSL_CERT_FILE}")
-    logging.info(f"SSL Certificate saved to {SSL_CERT_FILE}")
-    
-    return SSL_CERT_FILE, SSL_KEY_FILE
+from config import SECRET_KEY_FILE, PASSWORD, RSA_PRIVATE_KEY_FILE
 
 def get_or_create_secret_key():
     """获取或创建持久化的密钥"""
