@@ -20,10 +20,10 @@ from template.login_template import LOGIN_TEMPLATE
 
 
 def _compute_asset_version():
-    """基于 app.css/app.js 内容计算版本指纹，内容变更即自动失效浏览器缓存。"""
+    """基于 app.css/app.js/mathjax.min.js 内容计算版本指纹，内容变更即自动失效浏览器缓存。"""
     static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
     h = hashlib.md5()
-    for name in ('app.css', 'app.js'):
+    for name in ('app.css', 'app.js', 'mathjax.min.js'):
         path = os.path.join(static_dir, name)
         try:
             with open(path, 'rb') as f:
@@ -231,12 +231,16 @@ def index():
     # 将翻译字典转换为JSON字符串传递给前端
     translations_json = json.dumps(t)
 
+    # MATHJAX_CONFIG 通过主模板的 |safe 字面注入，其内部的 {{ asset_version }}
+    # 不会被主模板再次渲染，需在此先替换为实际版本号。
+    mathjax_config = MATHJAX_CONFIG.replace('{{ asset_version }}', ASSET_VERSION)
+
     return render_template_string(
         MAIN_TEMPLATE,
         t=t,
         lang=lang,
         translations_json=translations_json,
-        mathjax_config=MATHJAX_CONFIG,
+        mathjax_config=mathjax_config,
         asset_version=ASSET_VERSION
     )
 

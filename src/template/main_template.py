@@ -55,8 +55,8 @@ MATHJAX_CONFIG = '''
         };
     </script>
 
-    <!-- 加载MathJax（国内 CDN 镜像，避免 jsdelivr 跨境访问慢） -->
-    <script id="MathJax-script" async src="https://cdn.bootcdn.net/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
+    <!-- 加载MathJax（本地静态资源，避免跨境 CDN 延迟导致首屏加载缓慢） -->
+    <script id="MathJax-script" async src="/static/mathjax.min.js?v={{ asset_version }}"></script>
 '''
 
 # 欢迎信息内容
