@@ -170,6 +170,11 @@ MAIN_TEMPLATE = '''
                               <path fill-rule="evenodd" d="M19.5 21a3 3 0 003-3V9a3 3 0 00-3-3h-5.379a.75.75 0 01-.53-.22L11.47 3.66A2.25 2.25 0 009.879 3H4.5a3 3 0 00-3 3v12a3 3 0 003 3h15zM9 12.75a.75.75 0 000 1.5h6a.75.75 0 000-1.5H9z" clip-rule="evenodd" />
                             </svg>
                         </button>
+                        <button class="btn-icon" onclick="toggleTOC()" id="tocBtn" title="{{ t['outline'] }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1.25rem; height: 1.25rem;">
+                              <path fill-rule="evenodd" d="M2.625 6.75a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.875 0a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.875 0a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.875 0a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zM2.625 12a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.875 0a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.875 0a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.875 0a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zM2.625 17.25a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.875 0a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.875 0a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.875 0a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
                         <button class="btn-icon" onclick="toggleTheme()" id="themeToggle" title="Toggle Theme">
                             <!-- Icon will be set by JS -->
                         </button>
@@ -192,6 +197,7 @@ MAIN_TEMPLATE = '''
                 </div>
             </div>
 
+        <div class="main-body">
             <div class="content">
                 <div class="markdown-wrapper" id="markdownWrapper">
                     <div id="welcome-tab" class="tab-content active">
@@ -201,6 +207,26 @@ MAIN_TEMPLATE = '''
                     </div>
                 </div>
             </div>
+
+            <div class="toc-panel" id="tocPanel">
+                <div class="toc-header">
+                    <span>{{ t['outline'] }}</span>
+                    <button class="toc-toggle-btn" onclick="toggleTOC()" title="{{ t['outline_toggle'] }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1.25rem; height: 1.25rem;">
+                          <path fill-rule="evenodd" d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="toc-collapsed-indicator" onclick="toggleTOC()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1.25rem; height: 1.25rem;">
+                      <path fill-rule="evenodd" d="M16.28 11.47a.75.75 0 010 1.06l-7.5 7.5a.75.75 0 01-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 011.06-1.06l7.5 7.5z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="toc-content" id="tocContent">
+                    <!-- TOC items injected here -->
+                </div>
+            </div>
+        </div>
         </div>
     </div>
 

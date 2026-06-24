@@ -4,6 +4,8 @@ let currentPath = '';
         let openTabs = []; // Array of { path, name }
         let activeTabPath = null;
         let isEditing = false;
+        let tocObserver = null;
+        let tocCollapsed = localStorage.getItem('tocCollapsed') === 'true';
         
         // Icons
         const ICONS = {
@@ -254,6 +256,9 @@ let currentPath = '';
             // Reset edit mode when switching tabs
             isEditing = false;
             updateEditButtonState();
+
+            // 更新大纲为当前 Tab
+            updateTOCForActiveTab();
         }
 
         function closeTab(path, event) {
@@ -282,6 +287,7 @@ let currentPath = '';
                     // Show welcome tab
                     const welcomeTab = document.getElementById('welcome-tab');
                     if (welcomeTab) welcomeTab.classList.add('active');
+                    updateTOCForActiveTab();
                 }
             }
         }
@@ -341,6 +347,11 @@ let currentPath = '';
 
                     // 处理图片加载错误
                     setupImageHandlers(container);
+
+                    // 生成文档大纲（TOC）
+                    if (activeTabPath === filePath) {
+                        updateTOCForActiveTab();
+                    }
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -543,6 +554,7 @@ let currentPath = '';
                             MathJax.typesetPromise([viewEl]).then(() => addMathStyles(viewEl));
                         }
                         setupImageHandlers(viewEl);
+                        updateTOCForActiveTab();
                     }
                 })
                 .catch(err => {
@@ -612,4 +624,190 @@ let currentPath = '';
                 editBtn.title = TRANSLATIONS['edit'];
                 saveBtn.style.display = 'none';
             }
+        }
+
+
+        // =========================================================
+        // Table of Contents (TOC / 文档大纲)
+        // =========================================================
+
+        function getContentScrollContainer() {
+            return document.querySelector('.content');
+        }
+
+        function getActiveMarkdownContainer() {
+            if (!activeTabPath) return null;
+            const activeContent = document.getElementById(`tab-content-${CSS.escape(activeTabPath)}`);
+            return activeContent ? activeContent.querySelector('.markdown-content') : null;
+        }
+
+        function generateHeadingId(heading, index) {
+            if (heading.id) return heading.id;
+            const slug = (heading.textContent || '')
+                .trim()
+                .toLowerCase()
+                .replace(/[^\w\u4e00-\u9fa5]+/g, '-')
+                .replace(/^-+|-+$/g, '') || `heading-${index}`;
+            return `${slug}-${index}`;
+        }
+
+        function generateTOC() {
+            const tocPanel = document.getElementById('tocPanel');
+            const tocContent = document.getElementById('tocContent');
+            const contentEl = getActiveMarkdownContainer();
+
+            if (!tocPanel || !tocContent) return;
+
+            // 先清理旧观察器，避免交叉 Tab 泄漏
+            if (tocObserver) {
+                tocObserver.disconnect();
+                tocObserver = null;
+            }
+
+            if (!contentEl) {
+                tocContent.innerHTML = '';
+                tocPanel.classList.add('hidden');
+                tocPanel.classList.remove('collapsed');
+                return;
+            }
+
+            const headings = Array.from(contentEl.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+
+            if (headings.length === 0) {
+                tocContent.innerHTML = '';
+                tocPanel.classList.add('hidden');
+                tocPanel.classList.remove('collapsed');
+                return;
+            }
+
+            const list = document.createElement('ul');
+            list.className = 'toc-list';
+
+            headings.forEach((heading, index) => {
+                const level = parseInt(heading.tagName.charAt(1), 10);
+                if (!heading.id) {
+                    heading.id = generateHeadingId(heading, index);
+                }
+
+                const li = document.createElement('li');
+                const link = document.createElement('a');
+                link.className = `toc-item level-${level}`;
+                link.textContent = heading.textContent.trim();
+                link.dataset.target = heading.id;
+                link.href = `#${heading.id}`;
+                link.onclick = (e) => {
+                    e.preventDefault();
+                    scrollToHeading(heading.id);
+                };
+
+                li.appendChild(link);
+                list.appendChild(li);
+            });
+
+            tocContent.innerHTML = '';
+            tocContent.appendChild(list);
+
+            tocPanel.classList.remove('hidden');
+            if (tocCollapsed) {
+                tocPanel.classList.add('collapsed');
+            } else {
+                tocPanel.classList.remove('collapsed');
+            }
+
+            observeTOC(headings);
+            syncTOCActive();
+        }
+
+        function scrollToHeading(headingId) {
+            const contentEl = getActiveMarkdownContainer();
+            if (!contentEl || !headingId) return;
+            const heading = contentEl.querySelector(`#${CSS.escape(headingId)}`);
+            if (!heading) return;
+
+            heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setActiveTOCItem(headingId);
+        }
+
+        function observeTOC(headings) {
+            const content = getContentScrollContainer();
+            if (!content || headings.length === 0) return;
+
+            tocObserver = new IntersectionObserver((entries) => {
+                const visible = entries
+                    .filter(e => e.isIntersecting)
+                    .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+                if (visible.length > 0) {
+                    setActiveTOCItem(visible[0].target.id);
+                }
+            }, {
+                root: content,
+                rootMargin: '-80px 0px -60% 0px',
+                threshold: [0, 0.25, 0.5, 0.75, 1]
+            });
+
+            headings.forEach(h => tocObserver.observe(h));
+        }
+
+        function setActiveTOCItem(headingId) {
+            document.querySelectorAll('.toc-item').forEach(item => item.classList.remove('active'));
+            if (!headingId) return;
+
+            const item = document.querySelector(`.toc-item[data-target="${CSS.escape(headingId)}"]`);
+            if (item) {
+                item.classList.add('active');
+                item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        function syncTOCActive() {
+            const content = getContentScrollContainer();
+            const contentEl = getActiveMarkdownContainer();
+            if (!content || !contentEl) return;
+
+            const contentRect = content.getBoundingClientRect();
+            const offset = contentRect.top + 100;
+            const headings = Array.from(contentEl.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+
+            let current = null;
+            headings.forEach(heading => {
+                const rect = heading.getBoundingClientRect();
+                if (rect.top <= offset) {
+                    current = heading;
+                }
+            });
+
+            if (current) {
+                setActiveTOCItem(current.id);
+            }
+        }
+
+        function updateTOCForActiveTab() {
+            const tocPanel = document.getElementById('tocPanel');
+            const tocContent = document.getElementById('tocContent');
+            const contentEl = getActiveMarkdownContainer();
+
+            if (!tocPanel || !tocContent) return;
+
+            if (!activeTabPath || !contentEl) {
+                tocContent.innerHTML = '';
+                tocPanel.classList.add('hidden');
+                tocPanel.classList.remove('collapsed');
+                if (tocObserver) {
+                    tocObserver.disconnect();
+                    tocObserver = null;
+                }
+                return;
+            }
+
+            generateTOC();
+        }
+
+        function toggleTOC() {
+            const panel = document.getElementById('tocPanel');
+            if (!panel || panel.classList.contains('hidden')) return;
+
+            panel.classList.toggle('collapsed');
+            tocCollapsed = panel.classList.contains('collapsed');
+            localStorage.setItem('tocCollapsed', tocCollapsed);
         }

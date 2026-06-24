@@ -98,6 +98,9 @@ TRANSLATIONS = {
         'preview': '预览',
         'save_success': '保存成功',
         'save_error': '保存失败: ',
+        'outline': '大纲',
+        'outline_toggle': '切换大纲',
+        'no_headings': '无标题',
     },
     'en': {
         # Login Page
@@ -196,5 +199,8 @@ TRANSLATIONS = {
         'preview': 'Preview',
         'save_success': 'Saved successfully',
         'save_error': 'Save failed: ',
+        'outline': 'Outline',
+        'outline_toggle': 'Toggle Outline',
+        'no_headings': 'No headings',
     }
 }
