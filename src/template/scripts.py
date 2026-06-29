@@ -201,9 +201,12 @@ SCRIPTS  = '''
             tabEl.innerHTML = `
                 <span class="tab-icon">${ICONS.markdown}</span>
                 <span class="tab-title" title="${tab.path}">${tab.name}</span>
-                <span class="tab-close" onclick="closeTab('${CSS.escape(tab.path)}', event)">${ICONS.close}</span>
+                <span class="tab-close">${ICONS.close}</span>
             `;
-            
+
+            // 用闭包绑定，避免 inline onclick + CSS.escape 对路径的误转义
+            tabEl.querySelector('.tab-close').onclick = (event) => closeTab(tab.path, event);
+
             tabBar.appendChild(tabEl);
         }
 
